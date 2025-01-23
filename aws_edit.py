@@ -20,6 +20,37 @@ import tempfile
 import yaml
 
 
+def aws_setup_all(profiles, regions):
+    # TODO:
+    # - support "all" profiles with client.list_profiles()
+
+    sessions = []
+
+    if not profiles:
+        profiles = [None]
+
+    for profile in profiles:
+        session = boto3.Session(profile_name=profile)
+
+        if not regions:
+            # Get the list of regions enabled for our profile
+            client = session.client("ec2", region_name="us-west-2")
+            reply = client.describe_regions()
+            this_regions = [r['RegionName'] for r in reply['Regions']]
+        else:
+            this_regions = regions
+
+        for region in regions:
+            this = {
+                "profile": profile,
+                "region": region,
+                "session": session,
+            }
+            sessions.append(this)
+
+    return sessions
+
+
 subc_list = {}
 
 
@@ -60,7 +91,7 @@ def CLI(*_args, **kwargs):
 
 
 @CLI("ec2","tags")
-def subc_ec2_tags(args):
+def subc_ec2_tags(args, sessions):
     """Edit ec2 tags"""
 
     print("ec2 tags")
@@ -140,11 +171,18 @@ def main():
 
         # TODO: a default command?
 
-    
+    sessions = aws_setup_all(args.profile, args.region)
 
-    result = args.func(args)
-    if result is not None:
-        print(result)
+    result = args.func(args, sessions)
+    if result is None:
+        print("No results")
+        return
+
+    print(result)
+    # if show table ..
+    # if vd ..
+    # if edit ..
+
 
 
 if __name__ == "__main__":
