@@ -24,9 +24,47 @@ class handler_ec2_tags:
     """Edit ec2 tags"""
 
     def fetch(self, args, sessions):
-        print("ec2 tags")
-        print(args)
-        print(sessions)
+        db = {}
+        for session in sessions:
+            # TODO
+            # if not quiet
+            #  print stderr profile/region
+
+            client = session["session"].client(
+                "ec2",
+                region_name=session["region"]
+            )
+
+            token = None
+            paginator = client.get_paginator("describe_tags")
+
+            response = paginator.paginate(
+                PaginationConfig={
+                    "PageSize": 50,
+                    "StartingToken": token,
+                }
+            )
+
+            for page in response:
+                # TODO
+                # if not quiet and enough tags since last print
+                #   print stderr fetching ...
+                tags = page["Tags"]
+                for tag in tags:
+                    _id = tag["ResourceId"]
+                    # TODO ResourceType
+                    k = tag["Key"]
+                    v = tag["Value"]
+
+                    if _id not in db:
+                        db[_id] = {}
+                        db[_id]["_profile"] = session["profile"]
+                        db[_id]["_region"] = session["region"]
+
+                    db[_id][k] = v
+
+        return db
+
 
     def apply(self, data):
         pass
