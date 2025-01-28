@@ -51,46 +51,6 @@ def aws_setup_all(profiles, regions):
     return sessions
 
 
-subc_list = {}
-
-
-def CLI(*_args, **kwargs):
-    def wrap(f):
-        entry = {
-            "_final": True,
-            "func": f,
-            "help": f.__doc__,
-        }
-        entry.update(kwargs)
-        args = list(_args)
-
-        curr_level = subc_list
-        while args:
-            subc = args.pop(0)
-            if not args:
-                # this is the terminal subc level
-                if subc in curr_level:
-                    raise ValueError(f"Duplicate action {subc}")
-
-                curr_level[subc] = entry
-                return f
-
-            # this is still a prefix
-            if subc not in curr_level:
-                curr_level[subc] = {}
-
-            curr_level = curr_level[subc]
-
-            if "_final" in curr_level:
-                raise ValueError(f"both final and non final at {subc}")
-
-        # should never get here
-        raise ValueError("unknown")
-
-    return wrap
-
-
-@CLI("ec2","tags")
 def subc_ec2_tags(args, sessions):
     """Edit ec2 tags"""
 
@@ -98,26 +58,37 @@ def subc_ec2_tags(args, sessions):
     print(args)
 
 
+subc_list = {
+    "ec2": {
+        "help": "Deal with EC2 objects",
+        "subc": {
+            "tags": {
+                "handler": subc_ec2_tags,
+            },
+        },
+    },
+}
+
+
 def argparser_subc(argp, subc_list):
-    subc = argp.add_subparsers(
+    subp = argp.add_subparsers(
         dest="command",
         help="Command",
     )
 
     for name, data in sorted(subc_list.items()):
-        if "_final" not in data:
-            cmd = subc.add_parser(name)
-            argparser_subc(cmd, data)
-            continue
+        if "handler" in data:
+            help = data["handler"].__doc__
+        else:
+            help = data["help"]
+        cmd = subp.add_parser(name, help=help)
 
-        arg = False
-        if "arg" in data and data["arg"]:
-            arg = data["arg"]
+        if "handler" in data:
+            cmd.set_defaults(handler=data["handler"])
 
-        cmd = subc.add_parser(name, help=data["help"])
-        cmd.set_defaults(func=data["func"])
-        if arg:
-            cmd.add_argument(arg, nargs="*")
+        if "subc" in data:
+            argparser_subc(cmd, data["subc"])
+
 
 def argparser():
     args = argparse.ArgumentParser(
@@ -173,7 +144,7 @@ def main():
 
     sessions = aws_setup_all(args.profile, args.region)
 
-    result = args.func(args, sessions)
+    result = args.handler(args, sessions)
     if result is None:
         print("No results")
         return
