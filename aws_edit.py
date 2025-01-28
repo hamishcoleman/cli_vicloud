@@ -20,6 +20,18 @@ import tempfile
 import yaml
 
 
+class handler_ec2_tags:
+    """Edit ec2 tags"""
+
+    def fetch(self, args, sessions):
+        print("ec2 tags")
+        print(args)
+        print(sessions)
+
+    def apply(self, data):
+        pass
+
+
 def aws_setup_all(profiles, regions):
     # TODO:
     # - support "all" profiles with client.list_profiles()
@@ -51,19 +63,12 @@ def aws_setup_all(profiles, regions):
     return sessions
 
 
-def subc_ec2_tags(args, sessions):
-    """Edit ec2 tags"""
-
-    print("ec2 tags")
-    print(args)
-
-
 subc_list = {
     "ec2": {
         "help": "Deal with EC2 objects",
         "subc": {
             "tags": {
-                "handler": subc_ec2_tags,
+                "handler": handler_ec2_tags,
             },
         },
     },
@@ -142,14 +147,16 @@ def main():
 
         # TODO: a default command?
 
+    handler = args.handler()
+
     sessions = aws_setup_all(args.profile, args.region)
 
-    result = args.handler(args, sessions)
-    if result is None:
-        print("No results")
+    data = handler.fetch(args, sessions)
+    if data is None:
+        print("No data")
         return
 
-    print(result)
+    print(data)
     # if show table ..
     # if vd ..
     # if edit ..
