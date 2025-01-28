@@ -52,7 +52,7 @@ def aws_setup_all(profiles, regions):
         else:
             this_regions = regions
 
-        for region in regions:
+        for region in this_regions:
             this = {
                 "profile": profile,
                 "region": region,
@@ -127,12 +127,12 @@ def argparser():
 
     profiles = []
     for profile in r.profile:
-        profiles.append(region.split(","))
+        profiles += profile.split(",")
     r.profile = profiles
 
     regions = []
     for region in r.region:
-        regions.append(region.split(","))
+        regions += region.split(",")
     r.region = regions
 
     return r
