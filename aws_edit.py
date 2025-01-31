@@ -20,19 +20,39 @@ import tempfile
 import yaml
 
 
+class handler_data:
+    """Encapsulate the data needed to describe the remote object"""
+    def __init__(self):
+        self.profile = None
+        self.region = None
+        self.data = None
+
+    def __repr__(self):
+        return ",".join([
+            str(self.profile),
+            self.region,
+            str(self.data),
+        ])
+
+
 class handler_ec2_tags:
     """Edit ec2 tags"""
 
     def fetch(self, args, sessions):
-        db = {}
+        db = []
         for session in sessions:
             # TODO
             # if not quiet
             #  print stderr profile/region
 
+            resultset = handler_data()
+            resultset.profile = session["profile"]
+            resultset.region = session["region"]
+            data = {}
+
             client = session["session"].client(
                 "ec2",
-                region_name=session["region"]
+                region_name=resultset.region,
             )
 
             token = None
@@ -56,12 +76,14 @@ class handler_ec2_tags:
                     k = tag["Key"]
                     v = tag["Value"]
 
-                    if _id not in db:
-                        db[_id] = {}
-                        db[_id]["@profile"] = session["profile"]
-                        db[_id]["@region"] = session["region"]
+                    if _id not in data:
+                        data[_id] = {}
 
-                    db[_id][k] = v
+                    data[_id][k] = v
+
+            if data:
+                resultset.data = data
+                db.append(resultset)
 
         return db
 
