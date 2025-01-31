@@ -58,8 +58,8 @@ class handler_ec2_tags:
 
                     if _id not in db:
                         db[_id] = {}
-                        db[_id]["_profile"] = session["profile"]
-                        db[_id]["_region"] = session["region"]
+                        db[_id]["@profile"] = session["profile"]
+                        db[_id]["@region"] = session["region"]
 
                     db[_id][k] = v
 
