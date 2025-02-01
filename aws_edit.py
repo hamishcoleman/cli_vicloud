@@ -42,6 +42,7 @@ class Definition:
         d.add("@DataType")
         d.add("@Profile")
         d.add("@Region")
+        d.add("@ResourceId")
 
         for _id, row in self.data.items():
             d.update(row)
@@ -56,6 +57,7 @@ class Definition:
             this["@DataType"] = self.datatype
             this["@Profile"] = self.session.profile_name
             this["@Region"] = self.region
+            this["@ResourceId"] = _id
             this.update(row)
             yield this
 
@@ -123,13 +125,11 @@ class aws_ec2_tags_handler:
                 tags = page["Tags"]
                 for tag in tags:
                     _id = tag["ResourceId"]
-                    # TODO ResourceType
                     k = tag["Key"]
                     v = tag["Value"]
 
                     if _id not in data:
                         data[_id] = {}
-                        data[_id]["@ResourceId"] = _id
 
                     data[_id][k] = v
 
