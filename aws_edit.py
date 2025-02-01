@@ -91,6 +91,7 @@ class aws_ec2_tags_handler:
 
                     if _id not in data:
                         data[_id] = {}
+                        data[_id]["@ResourceId"] = _id
 
                     data[_id][k] = v
 
