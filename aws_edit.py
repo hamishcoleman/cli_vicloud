@@ -162,22 +162,54 @@ def process_data_vd(data):
     child.wait()
 
 
+def process_data_yaml(data):
+    # TODO:
+    # - use an accessor for the DefinitionSet list
+    # - use an accessor for the Definition data
+
+    output = []
+    for group in data._list:
+        for _id, item in group.data.items():
+            this = {}
+            this["buildinfo"] = {}
+            this["buildinfo"]["datatype"] = group.datatype
+            this["buildinfo"]["profile"] = group.session.profile_name
+            this["buildinfo"]["region"] = group.region
+
+            # TODO: this will probably not be generic for other datatypes
+            this["buildinfo"]["resourceid"] = _id
+
+            this["data"] = item
+
+            output.append(this)
+
+    yamlstr = yaml.safe_dump_all(
+        output,
+        explicit_start=True,
+        explicit_end=True,
+        default_flow_style=False,
+        sort_keys=True,
+    )
+    print(yamlstr)
+
+
 def process_data(args, data):
     # TODO:
     # if show table ..
-    # if vd ..
     # if edit ..
+    # output file name
 
-    process = "vd"
-
-    if process == "csv":
+    if args.mode == "csv":
         process_data_csv(data, sys.stdout)
         return
 
-    if process == "vd":
+    if args.mode == "vd":
         process_data_vd(data)
         return
 
+    if args.mode == "yaml":
+        process_data_yaml(data)
+        return
 
 
 def aws_setup_all(profiles, regions):
@@ -264,7 +296,17 @@ def argparser():
     )
     # quiet?
     # dry run?
-    # mode: vd,csv,...
+
+    args.add_argument(
+        "--mode",
+        choices=[
+            "csv",
+            "vd",
+            "yaml",
+        ],
+        default="vd",
+        help="What to do with the data",
+    )
 
     argparser_subc(args, subc_list)
 
