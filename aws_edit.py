@@ -27,8 +27,8 @@ class Definition:
     def __init__(self):
         # Set defaults for the metadata
         self.datatype = None
-        self.profile = None
         self.region = None
+        self.session = None
 
         # Initialise with empty data
         self.data = None
@@ -54,7 +54,7 @@ class Definition:
         for _id, row in self.data.items():
             this = {}
             this["@DataType"] = self.datatype
-            this["@Profile"] = self.profile
+            this["@Profile"] = self.session.profile_name
             this["@Region"] = self.region
             this.update(row)
             yield this
@@ -97,11 +97,11 @@ class aws_ec2_tags_handler:
 
             resultset = Definition()
             resultset.datatype = "aws.ec2.tags"
-            resultset.profile = session["profile"]
             resultset.region = session["region"]
+            resultset.session = session["session"]
             data = {}
 
-            client = session["session"].client(
+            client = resultset.session.client(
                 "ec2",
                 region_name=resultset.region,
             )
@@ -179,10 +179,8 @@ def process_data(args, data):
         return
 
 
-def aws_setup_all(profiles, regions):
-    # TODO:
-    # - support "all" profiles with client.list_profiles()
 
+def aws_setup_all(profiles, regions):
     sessions = []
 
     if not profiles:
@@ -200,13 +198,7 @@ def aws_setup_all(profiles, regions):
             this_regions = regions
 
         for region in this_regions:
-            if profile is None:
-                this_profile = "default"
-            else:
-                this_profile = profile
-
             this = {
-                "profile": this_profile,
                 "region": region,
                 "session": session,
             }
