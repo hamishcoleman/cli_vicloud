@@ -7,11 +7,13 @@
 #   dpkg:
 #     - python3-boto3
 #     - python3-yaml
+#     - visidata
 # ...
 
 import argparse
 import boto3
 import collections
+import csv
 import io
 import os
 import subprocess
@@ -34,6 +36,29 @@ class Definition:
     def __repr__(self):
         return str(self.__dict__)
 
+    def fields(self):
+        """Return the field names of both metadata and data"""
+        d = set()
+        d.add("@DataType")
+        d.add("@Profile")
+        d.add("@Region")
+
+        for _id, row in self.data.items():
+            d.update(row)
+
+        return d
+
+    def rows(self):
+        """Yield the contents (with metadata added)"""
+
+        for _id, row in self.data.items():
+            this = {}
+            this["@DataType"] = self.datatype
+            this["@Profile"] = self.profile
+            this["@Region"] = self.region
+            this.update(row)
+            yield this
+
 
 class DefinitionSet:
     """A list of definitions"""
@@ -43,8 +68,21 @@ class DefinitionSet:
     def __repr__(self):
         return str(self._list)
 
-    def append(self,data):
+    def append(self, data):
         self._list.append(data)
+
+    def fields(self):
+        """Return the combined field names of all the definitions"""
+        d = set()
+        for data in self._list:
+            d.update(data.fields())
+        return d
+
+    def rows(self):
+        """Yield the contents"""
+        for data in self._list:
+            for row in data.rows():
+                yield row
 
 
 class aws_ec2_tags_handler:
@@ -101,9 +139,44 @@ class aws_ec2_tags_handler:
 
         return db
 
-
     def apply(self, data):
         pass
+
+
+def process_data_csv(data, file):
+    fields = sorted(data.fields())
+    writer = csv.DictWriter(file, fieldnames=fields)
+    writer.writeheader()
+    for row in data.rows():
+        writer.writerow(row)
+
+
+def process_data_vd(data):
+    child = subprocess.Popen(
+        ["vd", "-f", "csv", "-"],
+        stdin=subprocess.PIPE,
+        text=True
+    )
+    process_data_csv(data, child.stdin)
+    child.stdin.close()
+    child.wait()
+
+
+def process_data(args, data):
+    # TODO:
+    # if show table ..
+    # if vd ..
+    # if edit ..
+
+    process = "vd"
+
+    if process == "csv":
+        process_data_csv(data, sys.stdout)
+        return
+
+    if process == "vd":
+        process_data_vd(data)
+        return
 
 
 def aws_setup_all(profiles, regions):
@@ -199,6 +272,7 @@ def argparser():
     )
     # quiet?
     # dry run?
+    # mode: vd,csv,...
 
     argparser_subc(args, subc_list)
 
@@ -235,11 +309,10 @@ def main():
         print("No data")
         return
 
-    print(data)
-    # if show table ..
-    # if vd ..
-    # if edit ..
+    if args.verbose > 1:
+        print(data)
 
+    process_data(args, data)
 
 
 if __name__ == "__main__":
