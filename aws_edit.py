@@ -20,32 +20,45 @@ import tempfile
 import yaml
 
 
-class handler_data:
+class Definition:
     """Encapsulate the data needed to describe the remote object"""
     def __init__(self):
+        # Set defaults for the metadata
+        self.datatype = None
         self.profile = None
         self.region = None
+
+        # Initialise with empty data
         self.data = None
 
     def __repr__(self):
-        return ",".join([
-            str(self.profile),
-            self.region,
-            str(self.data),
-        ])
+        return str(self.__dict__)
 
 
-class handler_ec2_tags:
+class DefinitionSet:
+    """A list of definitions"""
+    def __init__(self):
+        self._list = []
+
+    def __repr__(self):
+        return str(self._list)
+
+    def append(self,data):
+        self._list.append(data)
+
+
+class aws_ec2_tags_handler:
     """Edit ec2 tags"""
 
     def fetch(self, args, sessions):
-        db = []
+        db = DefinitionSet()
         for session in sessions:
             # TODO
             # if not quiet
             #  print stderr profile/region
 
-            resultset = handler_data()
+            resultset = Definition()
+            resultset.datatype = "aws.ec2.tags"
             resultset.profile = session["profile"]
             resultset.region = session["region"]
             data = {}
@@ -113,8 +126,13 @@ def aws_setup_all(profiles, regions):
             this_regions = regions
 
         for region in this_regions:
+            if profile is None:
+                this_profile = "default"
+            else:
+                this_profile = profile
+
             this = {
-                "profile": profile,
+                "profile": this_profile,
                 "region": region,
                 "session": session,
             }
@@ -128,7 +146,7 @@ subc_list = {
         "help": "Deal with EC2 objects",
         "subc": {
             "tags": {
-                "handler": handler_ec2_tags,
+                "handler": aws_ec2_tags_handler,
             },
         },
     },
