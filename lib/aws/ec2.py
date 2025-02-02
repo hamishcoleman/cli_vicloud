@@ -1,12 +1,15 @@
 import boto3
+import botocore
 import definitionset
+import sys
 
 
-def setup_sessions(profiles, regions):
+def setup_sessions(verbose, profiles, regions):
     sessions = []
 
     if not profiles:
-        profiles = [None]
+        session = boto3.Session()
+        profiles = session.available_profiles
 
     for profile in profiles:
         session = boto3.Session(profile_name=profile)
@@ -14,8 +17,16 @@ def setup_sessions(profiles, regions):
         if not regions:
             # Get the list of regions enabled for our profile
             client = session.client("ec2", region_name="us-west-2")
-            reply = client.describe_regions()
-            this_regions = [r['RegionName'] for r in reply['Regions']]
+            if verbose:
+                print(f"{profile}: describe_regions", file=sys.stderr)
+
+            try:
+                reply = client.describe_regions()
+                this_regions = [r['RegionName'] for r in reply['Regions']]
+            except botocore.exceptions.ClientError:
+                print(f"Error fetching regions for {profile}", file=sys.stderr)
+                this_regions = []
+
         else:
             this_regions = regions
 
@@ -32,15 +43,20 @@ def setup_sessions(profiles, regions):
 class base:
     single_region = False
 
+    def __init__(self):
+        self.verbose = 0
+
     def fetch(self, args, sessions):
         db = definitionset.DefinitionSet()
         profiles_done = {}
         for session in sessions:
-            # TODO
-            # if not quiet
-            #  print stderr profile/region
-
             profile_name = session["session"].profile_name
+            if self.verbose:
+                print(
+                    f'{profile_name}:{session["region"]}: describe_tags',
+                    file=sys.stderr
+                )
+
             if self.single_region and profile_name in profiles_done:
                 # skip all but the first region
                 # TODO: use a cannonical region!

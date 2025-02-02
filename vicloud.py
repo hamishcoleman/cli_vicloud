@@ -193,10 +193,15 @@ def argparser():
     args.add_argument(
         "-v", "--verbose",
         action='count',
-        default=0,
+        default=1,
         help="Increase verbosity",
     )
-    # quiet?
+    args.add_argument(
+        "-q", "--quiet",
+        action='store_true',
+        default=False,
+        help="Set verbosity to zero",
+    )
     # dry run?
 
     args.add_argument(
@@ -224,6 +229,9 @@ def argparser():
 
     r = args.parse_args()
 
+    if r.quiet:
+        r.verbose = 0
+
     profiles = []
     for profile in r.profile:
         profiles += profile.split(",")
@@ -249,8 +257,9 @@ def main():
         # - if no datatype to fetch is specified, assume this is an apply?
 
     handler = args.handler()
+    handler.verbose = args.verbose
 
-    sessions = aws.ec2.setup_sessions(args.profile, args.region)
+    sessions = aws.ec2.setup_sessions(args.verbose, args.profile, args.region)
 
     data = handler.fetch(args, sessions)
     if data is None:
