@@ -11,165 +11,22 @@
 # ...
 
 import argparse
-import boto3
 import csv
+import os
 import subprocess
 import sys
 import yaml
 
+# Ensure that we look for any modules in our local lib dir.  This allows simple
+# testing and development use.  It also does not break the case where the lib
+# has been installed properly on the normal sys.path
+sys.path.insert(
+    0,
+    os.path.join(os.path.dirname(os.path.realpath(__file__)), 'lib')
+)
+# I would use site.addsitedir, but it does an append, not insert
 
-class Definition:
-    """Encapsulate the data needed to describe the remote object"""
-    def __init__(self):
-        # Set defaults for the metadata
-        self.datatype = None
-        self.region = None
-        self.session = None
-
-        # Initialise with empty data
-        self.data = None
-
-    def __repr__(self):
-        return str(self.__dict__)
-
-    def fields(self):
-        """Return the field names of both metadata and data"""
-        d = set()
-        d.add("@DataType")
-        d.add("@Profile")
-        d.add("@Region")
-        d.add("@ResourceId")
-
-        for _id, row in self.data.items():
-            d.update(row)
-
-        return d
-
-    def rows(self):
-        """Yield the contents (with metadata added)"""
-
-        for _id, row in self.data.items():
-            this = {}
-            this["@DataType"] = self.datatype
-            this["@Profile"] = self.session.profile_name
-            this["@Region"] = self.region
-            this["@ResourceId"] = _id
-            this.update(row)
-            yield this
-
-
-class DefinitionSet:
-    """A list of definitions"""
-    def __init__(self):
-        self._list = []
-
-    def __repr__(self):
-        return str(self._list)
-
-    def append(self, data):
-        self._list.append(data)
-
-    def fields(self):
-        """Return the combined field names of all the definitions"""
-        d = set()
-        for data in self._list:
-            d.update(data.fields())
-        return d
-
-    def rows(self):
-        """Yield the contents"""
-        for data in self._list:
-            for row in data.rows():
-                yield row
-
-
-class aws_ec2_base:
-    def fetch(self, args, sessions):
-        db = DefinitionSet()
-        for session in sessions:
-            # TODO
-            # if not quiet
-            #  print stderr profile/region
-
-            resultset = Definition()
-            resultset.datatype = self.datatype
-            resultset.region = session["region"]
-            resultset.session = session["session"]
-
-            client = resultset.session.client(
-                "ec2",
-                region_name=resultset.region,
-            )
-
-            specifics = self._fetch_one_client(client)
-            if specifics:
-                resultset.data = specifics
-                db.append(resultset)
-
-        return db
-
-    def _fetch_one_client(self, client):
-        raise NotImplementedError
-
-    def apply(self, data):
-        raise NotImplementedError
-
-    @classmethod
-    def _paginator_helper(cls, client, operation):
-        """Wrap pagination details in a helper"""
-
-        token = None
-        paginator = client.get_paginator(operation)
-
-        response = paginator.paginate(
-            PaginationConfig={
-                "PageSize": 50,
-                "StartingToken": token,
-            }
-        )
-
-        for page in response:
-            # TODO
-            # if not quiet and enough tags since last print
-            #   print stderr fetching ...
-            yield page
-
-
-class aws_ec2_tags_handler(aws_ec2_base):
-    """Edit ec2 tags"""
-    datatype = "aws.ec2.tags"
-
-    def _fetch_one_client(self, client):
-        specifics = {}
-        for page in self._paginator_helper(client, "describe_tags"):
-            tags = page["Tags"]
-            for tag in tags:
-                _id = tag["ResourceId"]
-                k = tag["Key"]
-                v = tag["Value"]
-
-                if _id not in specifics:
-                    specifics[_id] = {}
-
-                specifics[_id][k] = v
-
-        return specifics
-
-
-class aws_ec2_instances_handler(aws_ec2_base):
-    datatype = "aws.ec2.instances"
-
-    def _fetch_one_client(self, client):
-        specifics = {}
-        for page in self._paginator_helper(client, "describe_instances"):
-            reservations = page["Reservations"]
-            for reservation in reservations:
-                instances = reservation["Instances"]
-                for instance in instances:
-                    _id = instance["InstanceId"]
-                    specifics[_id] = instance
-
-        return specifics
+import aws.ec2  # noqa
 
 
 def output_data_csv(data, file):
@@ -241,42 +98,15 @@ def process_data(args, data):
         return
 
 
-def aws_setup_all(profiles, regions):
-    sessions = []
-
-    if not profiles:
-        profiles = [None]
-
-    for profile in profiles:
-        session = boto3.Session(profile_name=profile)
-
-        if not regions:
-            # Get the list of regions enabled for our profile
-            client = session.client("ec2", region_name="us-west-2")
-            reply = client.describe_regions()
-            this_regions = [r['RegionName'] for r in reply['Regions']]
-        else:
-            this_regions = regions
-
-        for region in this_regions:
-            this = {
-                "region": region,
-                "session": session,
-            }
-            sessions.append(this)
-
-    return sessions
-
-
 subc_list = {
     "ec2": {
         "help": "Deal with EC2 objects",
         "subc": {
             "instances": {
-                "handler": aws_ec2_instances_handler,
+                "handler": aws.ec2.instances_handler,
             },
             "tags": {
-                "handler": aws_ec2_tags_handler,
+                "handler": aws.ec2.tags_handler,
             },
         },
     },
@@ -369,7 +199,7 @@ def main():
 
     handler = args.handler()
 
-    sessions = aws_setup_all(args.profile, args.region)
+    sessions = aws.ec2.setup_sessions(args.profile, args.region)
 
     data = handler.fetch(args, sessions)
     if data is None:
