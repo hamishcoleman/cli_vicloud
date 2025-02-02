@@ -30,6 +30,7 @@ sys.path.insert(
 
 import aws      # noqa
 import aws.ec2  # noqa
+import aws.iam  # noqa
 
 
 def output_data_csv(data, file):
@@ -125,7 +126,12 @@ def process_data(args, data):
 
 subc_list = {
     "ec2": {
-        "help": "Deal with EC2 objects",
+        "help": "Virtual machines (Elastic Compute Cloud)",
+        "subc": {
+        },
+    },
+    "iam": {
+        "help": "Users and Perms (IAM)",
         "subc": {
         },
     },
@@ -248,6 +254,7 @@ def argparser():
 
 def main():
     argparser_populate_subc(subc_list["ec2"]["subc"], aws.ec2, "aws.ec2.")
+    argparser_populate_subc(subc_list["iam"]["subc"], aws.iam, "aws.iam.")
     args = argparser()
 
     if not args.command:
