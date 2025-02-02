@@ -98,7 +98,7 @@ class _data_two_deep(base):
         return data
 
 
-class account_attributes_handler(base):
+class account_attributes(base):
     datatype = "aws.ec2.account_attributes"
 
     def _fetch_one_client(self, client):
@@ -119,14 +119,14 @@ class account_attributes_handler(base):
         return {0: data}
 
 
-class availability_zones_handler(_data_two_deep):
+class availability_zones(_data_two_deep):
     datatype = "aws.ec2.availability_zones"
     operator = "describe_availability_zones"
     r1_key = "AvailabilityZones"
     r2_id = "ZoneId"
 
 
-class dhcp_options_handler(base):
+class dhcp_options(base):
     datatype = "aws.ec2.dhcp_options"
 
     def _fetch_one_client(self, client):
@@ -155,21 +155,21 @@ class dhcp_options_handler(base):
         return data
 
 
-class host_reservation_offerings_handler(_data_two_deep):
+class host_reservation_offerings(_data_two_deep):
     datatype = "aws.ec2.host_reservation_offerings"
     operator = "describe_host_reservation_offerings"
     r1_key = "OfferingSet"
     r2_id = "OfferingId"
 
 
-class images_handler(_data_two_deep):
+class images(_data_two_deep):
     datatype = "aws.ec2.images"
     operator = "describe_images"
     r1_key = "Images"
     r2_id = "ImageId"
 
 
-class instances_handler(base):
+class instances(base):
     datatype = "aws.ec2.instances"
 
     def _fetch_one_client(self, client):
@@ -188,7 +188,7 @@ class instances_handler(base):
         return data
 
 
-class tags_handler(base):
+class tags(base):
     """Edit ec2 tags"""
     datatype = "aws.ec2.tags"
 
