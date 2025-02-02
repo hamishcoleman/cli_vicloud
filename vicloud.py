@@ -13,6 +13,7 @@
 import argparse
 import csv
 import inspect
+import json
 import os
 import subprocess
 import sys
@@ -38,13 +39,31 @@ def output_data_csv(data, file):
         writer.writerow(row)
 
 
-def output_data_vd(data):
+def output_data_json(data, file):
+    output = []
+    for row in data.rows():
+        output.append(row)
+    json.dump(
+        output,
+        file,
+        sort_keys=True,
+        default=str,
+    )
+
+
+def output_data_vd(data, mode):
     child = subprocess.Popen(
-        ["vd", "-f", "csv", "-"],
+        ["vd", "-f", mode, "-"],
         stdin=subprocess.PIPE,
         text=True
     )
-    output_data_csv(data, child.stdin)
+    if mode == "csv":
+        output_data_csv(data, child.stdin)
+    elif mode == "json":
+        output_data_json(data, child.stdin)
+    else:
+        raise ValueError(f"unknown vd mode {mode}")
+
     child.stdin.close()
     child.wait()
 
@@ -90,8 +109,12 @@ def process_data(args, data):
         output_data_csv(data, sys.stdout)
         return
 
+    if args.mode == "json":
+        output_data_json(data, sys.stdout)
+        return
+
     if args.mode == "vd":
-        output_data_vd(data)
+        output_data_vd(data, args.mode_vd)
         return
 
     if args.mode == "yaml":
@@ -180,11 +203,21 @@ def argparser():
         "--mode",
         choices=[
             "csv",
+            "json",
             "vd",
             "yaml",
         ],
         default="vd",
         help="What to do with the data",
+    )
+    args.add_argument(
+        "--mode_vd",
+        choices=[
+            "csv",
+            "json",
+        ],
+        default="json",
+        help="What data type to send to vd",
     )
 
     argparser_subc(args, subc_list)
