@@ -81,6 +81,22 @@ class base:
             yield page
 
 
+class instances_handler(base):
+    datatype = "aws.ec2.instances"
+
+    def _fetch_one_client(self, client):
+        specifics = {}
+        for page in self._paginator_helper(client, "describe_instances"):
+            reservations = page["Reservations"]
+            for reservation in reservations:
+                instances = reservation["Instances"]
+                for instance in instances:
+                    _id = instance["InstanceId"]
+                    specifics[_id] = instance
+
+        return specifics
+
+
 class tags_handler(base):
     """Edit ec2 tags"""
     datatype = "aws.ec2.tags"
@@ -98,21 +114,5 @@ class tags_handler(base):
                     specifics[_id] = {}
 
                 specifics[_id][k] = v
-
-        return specifics
-
-
-class instances_handler(base):
-    datatype = "aws.ec2.instances"
-
-    def _fetch_one_client(self, client):
-        specifics = {}
-        for page in self._paginator_helper(client, "describe_instances"):
-            reservations = page["Reservations"]
-            for reservation in reservations:
-                instances = reservation["Instances"]
-                for instance in instances:
-                    _id = instance["InstanceId"]
-                    specifics[_id] = instance
 
         return specifics
