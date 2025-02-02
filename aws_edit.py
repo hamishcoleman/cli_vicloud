@@ -143,7 +143,7 @@ class aws_ec2_tags_handler:
         pass
 
 
-def process_data_csv(data, file):
+def output_data_csv(data, file):
     fields = sorted(data.fields())
     writer = csv.DictWriter(file, fieldnames=fields)
     writer.writeheader()
@@ -151,18 +151,18 @@ def process_data_csv(data, file):
         writer.writerow(row)
 
 
-def process_data_vd(data):
+def output_data_vd(data):
     child = subprocess.Popen(
         ["vd", "-f", "csv", "-"],
         stdin=subprocess.PIPE,
         text=True
     )
-    process_data_csv(data, child.stdin)
+    output_data_csv(data, child.stdin)
     child.stdin.close()
     child.wait()
 
 
-def process_data_yaml(data):
+def output_data_yaml(data):
     # TODO:
     # - use an accessor for the DefinitionSet list
     # - use an accessor for the Definition data
@@ -200,15 +200,15 @@ def process_data(args, data):
     # output file name
 
     if args.mode == "csv":
-        process_data_csv(data, sys.stdout)
+        output_data_csv(data, sys.stdout)
         return
 
     if args.mode == "vd":
-        process_data_vd(data)
+        output_data_vd(data)
         return
 
     if args.mode == "yaml":
-        process_data_yaml(data)
+        output_data_yaml(data)
         return
 
 
