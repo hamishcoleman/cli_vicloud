@@ -101,6 +101,21 @@ class account_attributes_handler(base):
         return {0: data}
 
 
+class availability_zones_handler(base):
+    datatype = "aws.ec2.availability_zones"
+
+    def _fetch_one_client(self, client):
+        data = {}
+        r = client.describe_availability_zones()
+
+        r2 = r["AvailabilityZones"]
+        for r3 in r2:
+            _id = r3["ZoneId"]
+            data[_id] = r3
+
+        return data
+
+
 class instances_handler(base):
     datatype = "aws.ec2.instances"
 

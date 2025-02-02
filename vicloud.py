@@ -105,6 +105,9 @@ subc_list = {
             "account_attributes": {
                 "handler": aws.ec2.account_attributes_handler,
             },
+            "availability_zones": {
+                "handler": aws.ec2.availability_zones_handler,
+            },
             "instances": {
                 "handler": aws.ec2.instances_handler,
             },
