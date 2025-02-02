@@ -30,12 +30,22 @@ def setup_sessions(profiles, regions):
 
 
 class base:
+    single_region = False
+
     def fetch(self, args, sessions):
         db = definitionset.DefinitionSet()
+        profiles_done = {}
         for session in sessions:
             # TODO
             # if not quiet
             #  print stderr profile/region
+
+            profile_name = session["session"].profile_name
+            if self.single_region and profile_name in profiles_done:
+                # skip all but the first region
+                # TODO: use a cannonical region!
+                continue
+            profiles_done[profile_name] = True
 
             resultset = definitionset.Definition()
             resultset.datatype = self.datatype
@@ -243,11 +253,9 @@ class prefix_lists(_data_two_deep):
 
 
 class regions(_data_two_deep):
-    # TODO:
-    # this looks to be account-wide data, so the @Region field will be
-    # not useful
     datatype = "aws.ec2.regions"
     operator = "describe_regions"
+    single_region = True
     r1_key = "Regions"
     r2_id = "RegionName"
 
