@@ -61,24 +61,28 @@ class base:
         raise NotImplementedError
 
     @classmethod
-    def _paginator_helper(cls, client, operation):
-        """Wrap pagination details in a helper"""
+    def _paged_op(cls, client, operation):
+        """Wrap possible pagination in a helper"""
 
-        token = None
-        paginator = client.get_paginator(operation)
+        if not client.can_paginate(operation):
+            operator = getattr(client, operation)
+            yield operator()
+        else:
+            token = None
+            paginator = client.get_paginator(operation)
 
-        response = paginator.paginate(
-            PaginationConfig={
-                "PageSize": 50,
-                "StartingToken": token,
-            }
-        )
+            response = paginator.paginate(
+                PaginationConfig={
+                    "PageSize": 50,
+                    "StartingToken": token,
+                }
+            )
 
-        for page in response:
-            # TODO
-            # if not quiet and enough tags since last print
-            #   print stderr fetching ...
-            yield page
+            for page in response:
+                # TODO
+                # if not quiet and enough tags since last print
+                #   print stderr fetching ...
+                yield page
 
 
 class account_attributes_handler(base):
@@ -116,12 +120,65 @@ class availability_zones_handler(base):
         return data
 
 
+class dhcp_options_handler(base):
+    datatype = "aws.ec2.dhcp_options"
+
+    def _fetch_one_client(self, client):
+        data = {}
+        for r1 in self._paged_op(client, "describe_dhcp_options"):
+            for r2 in r1["DhcpOptions"]:
+                _id = r2["DhcpOptionsId"]
+                if _id not in data:
+                    data[_id] = {}
+                data[_id]["OwnerId"] = r2["OwnerId"]
+                data[_id]["Tags"] = r2["Tags"]
+
+                for r3 in r2["DhcpConfigurations"]:
+                    k = r3["Key"]
+
+                    values = []
+                    for value in r3["Values"]:
+                        values.append(value["Value"])
+
+                    data[_id][k] = ",".join(values)
+
+        return data
+
+
+class host_reservation_offerings_handler(base):
+    datatype = "aws.ec2.host_reservation_offerings"
+
+    def _fetch_one_client(self, client):
+        data = {}
+        operator = "describe_host_reservation_offerings"
+        for r1 in self._paged_op(client, operator):
+            for r2 in r1["OfferingSet"]:
+                _id = r2["OfferingId"]
+                data[_id] = r2
+
+        return data
+
+
+class images_handler(base):
+    datatype = "aws.ec2.images"
+
+    def _fetch_one_client(self, client):
+        data = {}
+        operator = "describe_images"
+        for r1 in self._paged_op(client, operator):
+            for r2 in r1["Images"]:
+                _id = r2["ImageId"]
+                data[_id] = r2
+
+        return data
+
+
 class instances_handler(base):
     datatype = "aws.ec2.instances"
 
     def _fetch_one_client(self, client):
         specifics = {}
-        for page in self._paginator_helper(client, "describe_instances"):
+        for page in self._paged_op(client, "describe_instances"):
             reservations = page["Reservations"]
             for reservation in reservations:
                 instances = reservation["Instances"]
@@ -138,7 +195,7 @@ class tags_handler(base):
 
     def _fetch_one_client(self, client):
         specifics = {}
-        for page in self._paginator_helper(client, "describe_tags"):
+        for page in self._paged_op(client, "describe_tags"):
             tags = page["Tags"]
             for tag in tags:
                 _id = tag["ResourceId"]
