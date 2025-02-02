@@ -169,6 +169,20 @@ class images(_data_two_deep):
     r2_id = "ImageId"
 
 
+class instance_credit_specifications(_data_two_deep):
+    datatype = "aws.ec2.instance_credit_specifications"
+    operator = "describe_instance_credit_specifications"
+    r1_key = "InstanceCreditSpecifications"
+    r2_id = "InstanceId"
+
+
+class instance_types(_data_two_deep):
+    datatype = "aws.ec2.instance_types"
+    operator = "describe_instance_types"
+    r1_key = "InstanceTypes"
+    r2_id = "InstanceType"
+
+
 class instances(base):
     datatype = "aws.ec2.instances"
 
@@ -186,6 +200,84 @@ class instances(base):
                     data[_id] = r3
 
         return data
+
+
+class internet_gateways(_data_two_deep):
+    datatype = "aws.ec2.internet_gateways"
+    operator = "describe_internet_gateways"
+    r1_key = "InternetGateways"
+    r2_id = "InternetGatewayId"
+
+
+class key_pairs(_data_two_deep):
+    datatype = "aws.ec2.key_pairs"
+    operator = "describe_key_pairs"
+    r1_key = "KeyPairs"
+    r2_id = "KeyPairId"
+
+
+class managed_prefix_lists(_data_two_deep):
+    datatype = "aws.ec2.managed_prefix_lists"
+    operator = "describe_managed_prefix_lists"
+    r1_key = "PrefixLists"
+    r2_id = "PrefixListId"
+
+
+# describe-nat-gateways
+# describe-network-acls
+# describe-network-interface-permissions
+
+
+class network_interfaces(_data_two_deep):
+    datatype = "aws.ec2.network_interfaces"
+    operator = "describe_network_interfaces"
+    r1_key = "NetworkInterfaces"
+    r2_id = "NetworkInterfaceId"
+
+
+class prefix_lists(_data_two_deep):
+    datatype = "aws.ec2.prefix_lists"
+    operator = "describe_prefix_lists"
+    r1_key = "PrefixLists"
+    r2_id = "PrefixListId"
+
+
+class regions(_data_two_deep):
+    # TODO:
+    # this looks to be account-wide data, so the @Region field will be
+    # not useful
+    datatype = "aws.ec2.regions"
+    operator = "describe_regions"
+    r1_key = "Regions"
+    r2_id = "RegionName"
+
+
+class route_tables(_data_two_deep):
+    datatype = "aws.ec2.route_tables"
+    operator = "describe_route_tables"
+    r1_key = "RouteTables"
+    r2_id = "RouteTableId"
+
+
+class security_group_rules(_data_two_deep):
+    datatype = "aws.ec2.security_group_rules"
+    operator = "describe_security_group_rules"
+    r1_key = "SecurityGroupRules"
+    r2_id = "SecurityGroupRuleId"
+
+
+class snapshots(_data_two_deep):
+    datatype = "aws.ec2.snapshots"
+    operator = "describe_snapshots"
+    r1_key = "Snapshots"
+    r2_id = "SnapshotId"
+
+
+class subnets(_data_two_deep):
+    datatype = "aws.ec2.subnets"
+    operator = "describe_subnets"
+    r1_key = "Subnets"
+    r2_id = "SubnetId"
 
 
 class tags(base):
@@ -210,3 +302,56 @@ class tags(base):
                 data[_id][k] = v
 
         return data
+
+
+# describe-transit-gateway-attachments
+# describe-transit-gateway-connect-peers
+# describe-transit-gateway-connects
+# describe-transit-gateway-multicast-domains
+# describe-transit-gateway-peering-attachments
+# describe-transit-gateway-policy-tables
+# describe-transit-gateway-route-table-announcements
+# describe-transit-gateway-route-tables
+# describe-transit-gateway-vpc-attachments
+# describe-transit-gateways
+
+
+class volume_status(_data_two_deep):
+    datatype = "aws.ec2.volume_status"
+    operator = "describe_volume_status"
+    r1_key = "VolumeStatuses"
+    r2_id = "VolumeId"
+
+
+class volumes(_data_two_deep):
+    datatype = "aws.ec2.volumes"
+    operator = "describe_volumes"
+    r1_key = "Volumes"
+    r2_id = "VolumeId"
+
+
+# describe-vpc-endpoint-connection-notifications
+# describe-vpc-endpoint-connections
+# describe-vpc-endpoint-service-configurations
+
+
+class vpc_endpoint_services(_data_two_deep):
+    datatype = "aws.ec2.vpc_endpoint_services"
+    operator = "describe_vpc_endpoint_services"
+    r1_key = "ServiceDetails"
+    r2_id = "ServiceId"
+
+
+# describe-vpc-endpoints
+# describe-vpc-peering-connections
+
+
+class vpcs(_data_two_deep):
+    datatype = "aws.ec2.vpcs"
+    operator = "describe_vpcs"
+    r1_key = "Vpcs"
+    r2_id = "VpcId"
+
+
+# describe-vpn-connections
+# describe-vpn-gateways
