@@ -87,9 +87,7 @@ class DefinitionSet:
                 yield row
 
 
-class aws_ec2_tags_handler:
-    """Edit ec2 tags"""
-
+class aws_ec2_base:
     def fetch(self, args, sessions):
         db = DefinitionSet()
         for session in sessions:
@@ -98,49 +96,68 @@ class aws_ec2_tags_handler:
             #  print stderr profile/region
 
             resultset = Definition()
-            resultset.datatype = "aws.ec2.tags"
+            resultset.datatype = self.datatype
             resultset.region = session["region"]
             resultset.session = session["session"]
-            data = {}
 
             client = resultset.session.client(
                 "ec2",
                 region_name=resultset.region,
             )
 
-            token = None
-            paginator = client.get_paginator("describe_tags")
-
-            response = paginator.paginate(
-                PaginationConfig={
-                    "PageSize": 50,
-                    "StartingToken": token,
-                }
-            )
-
-            for page in response:
-                # TODO
-                # if not quiet and enough tags since last print
-                #   print stderr fetching ...
-                tags = page["Tags"]
-                for tag in tags:
-                    _id = tag["ResourceId"]
-                    k = tag["Key"]
-                    v = tag["Value"]
-
-                    if _id not in data:
-                        data[_id] = {}
-
-                    data[_id][k] = v
-
-            if data:
-                resultset.data = data
+            specifics = self._fetch_one_client(client)
+            if specifics:
+                resultset.data = specifics
                 db.append(resultset)
 
         return db
 
+    def _fetch_one_client(self, client):
+        raise NotImplementedError
+
     def apply(self, data):
-        pass
+        raise NotImplementedError
+
+    @classmethod
+    def _paginator_helper(cls, client, operation):
+        """Wrap pagination details in a helper"""
+
+        token = None
+        paginator = client.get_paginator(operation)
+
+        response = paginator.paginate(
+            PaginationConfig={
+                "PageSize": 50,
+                "StartingToken": token,
+            }
+        )
+
+        for page in response:
+            yield page
+
+
+class aws_ec2_tags_handler(aws_ec2_base):
+    """Edit ec2 tags"""
+    datatype = "aws.ec2.tags"
+
+    def _fetch_one_client(self, client):
+        specifics = {}
+        for page in self._paginator_helper(client, "describe_tags"):
+            # TODO
+            # if not quiet and enough tags since last print
+            #   print stderr fetching ...
+            tags = page["Tags"]
+            for tag in tags:
+                _id = tag["ResourceId"]
+                k = tag["Key"]
+                v = tag["Value"]
+
+                if _id not in specifics:
+                    specifics[_id] = {}
+
+                specifics[_id][k] = v
+
+        return specifics
 
 
 def output_data_csv(data, file):
