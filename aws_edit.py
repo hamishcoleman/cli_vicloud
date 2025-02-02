@@ -332,7 +332,8 @@ def main():
         print("Need command")
         return
 
-        # TODO: a default command?
+        # TODO:
+        # - if no datatype to fetch is specified, assume this is an apply?
 
     handler = args.handler()
 
