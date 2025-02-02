@@ -27,6 +27,8 @@ class account_attributes(base):
 
 
 class availability_zones(base, aws._data_two_deep):
+    # TODO
+    # This is different per region, but not per account, so can skip
     datatype = "aws.ec2.availability_zones"
     operator = "describe_availability_zones"
     r1_key = "AvailabilityZones"
