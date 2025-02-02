@@ -28,6 +28,7 @@ sys.path.insert(
 )
 # I would use site.addsitedir, but it does an append, not insert
 
+import aws      # noqa
 import aws.ec2  # noqa
 
 
@@ -259,7 +260,7 @@ def main():
     handler = args.handler()
     handler.verbose = args.verbose
 
-    sessions = aws.ec2.setup_sessions(args.verbose, args.profile, args.region)
+    sessions = aws.setup_sessions(args.verbose, args.profile, args.region)
 
     data = handler.fetch(args, sessions)
     if data is None:
