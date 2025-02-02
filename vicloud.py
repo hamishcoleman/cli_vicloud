@@ -12,13 +12,9 @@
 
 import argparse
 import boto3
-import collections
 import csv
-import io
-import os
 import subprocess
 import sys
-import tempfile
 import yaml
 
 
