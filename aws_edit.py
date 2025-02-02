@@ -160,6 +160,22 @@ class aws_ec2_tags_handler(aws_ec2_base):
         return specifics
 
 
+class aws_ec2_instances_handler(aws_ec2_base):
+    datatype = "aws.ec2.instances"
+
+    def _fetch_one_client(self, client):
+        specifics = {}
+        for page in self._paginator_helper(client, "describe_instances"):
+            reservations = page["Reservations"]
+            for reservation in reservations:
+                instances = reservation["Instances"]
+                for instance in instances:
+                    _id = instance["InstanceId"]
+                    specifics[_id] = instance
+
+        return specifics
+
+
 def output_data_csv(data, file):
     fields = sorted(data.fields())
     writer = csv.DictWriter(file, fieldnames=fields)
@@ -260,6 +276,9 @@ subc_list = {
     "ec2": {
         "help": "Deal with EC2 objects",
         "subc": {
+            "instances": {
+                "handler": aws_ec2_instances_handler,
+            },
             "tags": {
                 "handler": aws_ec2_tags_handler,
             },
