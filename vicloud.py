@@ -12,6 +12,7 @@
 
 import argparse
 import csv
+import inspect
 import os
 import subprocess
 import sys
@@ -102,21 +103,31 @@ subc_list = {
     "ec2": {
         "help": "Deal with EC2 objects",
         "subc": {
-            "account_attributes": {
-                "handler": aws.ec2.account_attributes_handler,
-            },
-            "availability_zones": {
-                "handler": aws.ec2.availability_zones_handler,
-            },
-            "instances": {
-                "handler": aws.ec2.instances_handler,
-            },
-            "tags": {
-                "handler": aws.ec2.tags_handler,
-            },
         },
     },
 }
+
+
+def argparser_populate_subc(subc, module, prefix):
+    """Inspect the given module for handlers to add to the subc"""
+    for name, obj in inspect.getmembers(module):
+        if not inspect.isclass(obj):
+            # only care about classes
+            continue
+        if not hasattr(obj, "datatype"):
+            # only care about ones with a datatype
+            continue
+        if not obj.datatype.startswith(prefix):
+            # just want the specified datatype prefix
+            continue
+
+        name = obj.datatype[len(prefix):]
+
+        if name in subc:
+            raise ValueError(f"duplicate subc {name}")
+
+        subc[name] = {}
+        subc[name]["handler"] = obj
 
 
 def argparser_subc(argp, subc_list):
@@ -194,6 +205,7 @@ def argparser():
 
 
 def main():
+    argparser_populate_subc(subc_list["ec2"]["subc"], aws.ec2, "aws.ec2.")
     args = argparser()
 
     if not args.command:
