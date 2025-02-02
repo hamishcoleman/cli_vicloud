@@ -81,6 +81,26 @@ class base:
             yield page
 
 
+class account_attributes_handler(base):
+    datatype = "aws.ec2.account_attributes"
+
+    def _fetch_one_client(self, client):
+        data = {}
+        r = client.describe_account_attributes()
+
+        attributes = r["AccountAttributes"]
+        for attr in attributes:
+            k = attr["AttributeName"]
+
+            values = []
+            for value in attr["AttributeValues"]:
+                values.append(value["AttributeValue"])
+
+            data[k] = ",".join(values)
+
+        return {0: data}
+
+
 class instances_handler(base):
     datatype = "aws.ec2.instances"
 

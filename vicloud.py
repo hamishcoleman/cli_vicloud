@@ -102,6 +102,9 @@ subc_list = {
     "ec2": {
         "help": "Deal with EC2 objects",
         "subc": {
+            "account_attributes": {
+                "handler": aws.ec2.account_attributes_handler,
+            },
             "instances": {
                 "handler": aws.ec2.instances_handler,
             },
