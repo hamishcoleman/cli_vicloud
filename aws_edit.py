@@ -162,7 +162,7 @@ def output_data_vd(data):
     child.wait()
 
 
-def output_data_yaml(data):
+def output_data_yaml(data, file):
     # TODO:
     # - use an accessor for the DefinitionSet list
     # - use an accessor for the Definition data
@@ -190,7 +190,7 @@ def output_data_yaml(data):
         default_flow_style=False,
         sort_keys=True,
     )
-    print(yamlstr)
+    print(yamlstr, file=file)
 
 
 def process_data(args, data):
@@ -208,7 +208,7 @@ def process_data(args, data):
         return
 
     if args.mode == "yaml":
-        output_data_yaml(data)
+        output_data_yaml(data, sys.stdout)
         return
 
 
