@@ -90,17 +90,18 @@ class account_attributes_handler(base):
 
     def _fetch_one_client(self, client):
         data = {}
-        r = client.describe_account_attributes()
+        operator = "describe_account_attributes"
+        r1_key = "AccountAttributes"
 
-        attributes = r["AccountAttributes"]
-        for attr in attributes:
-            k = attr["AttributeName"]
+        for r1 in self._paged_op(client, operator):
+            for r2 in r1[r1_key]:
+                k = r2["AttributeName"]
 
-            values = []
-            for value in attr["AttributeValues"]:
-                values.append(value["AttributeValue"])
+                values = []
+                for value in attr["AttributeValues"]:
+                    values.append(value["AttributeValue"])
 
-            data[k] = ",".join(values)
+                data[k] = ",".join(values)
 
         return {0: data}
 
@@ -110,12 +111,14 @@ class availability_zones_handler(base):
 
     def _fetch_one_client(self, client):
         data = {}
-        r = client.describe_availability_zones()
+        operator = "describe_availability_zones"
+        r1_key = "AvailabilityZones"
+        r2_id = "ZoneId"
 
-        r2 = r["AvailabilityZones"]
-        for r3 in r2:
-            _id = r3["ZoneId"]
-            data[_id] = r3
+        for r1 in self._paged_op(client, operator):
+            for r2 in r1[r1_key]:
+                _id = r2[r2_id]
+                data[_id] = r2
 
         return data
 
@@ -125,9 +128,13 @@ class dhcp_options_handler(base):
 
     def _fetch_one_client(self, client):
         data = {}
-        for r1 in self._paged_op(client, "describe_dhcp_options"):
-            for r2 in r1["DhcpOptions"]:
-                _id = r2["DhcpOptionsId"]
+        operator = "describe_dhcp_options"
+        r1_key = "DhcpOptions"
+        r2_id = "DhcpOptionsId"
+
+        for r1 in self._paged_op(client, operator):
+            for r2 in r1[r1_key]:
+                _id = r2[r2_id]
                 if _id not in data:
                     data[_id] = {}
                 data[_id]["OwnerId"] = r2["OwnerId"]
@@ -151,9 +158,12 @@ class host_reservation_offerings_handler(base):
     def _fetch_one_client(self, client):
         data = {}
         operator = "describe_host_reservation_offerings"
+        r1_key = "OfferingSet"
+        r2_id = "OfferingId"
+
         for r1 in self._paged_op(client, operator):
-            for r2 in r1["OfferingSet"]:
-                _id = r2["OfferingId"]
+            for r2 in r1[r1_key]:
+                _id = r2[r2_id]
                 data[_id] = r2
 
         return data
@@ -165,9 +175,12 @@ class images_handler(base):
     def _fetch_one_client(self, client):
         data = {}
         operator = "describe_images"
+        r1_key = "Images"
+        r2_id = "ImageId"
+
         for r1 in self._paged_op(client, operator):
-            for r2 in r1["Images"]:
-                _id = r2["ImageId"]
+            for r2 in r1[r1_key]:
+                _id = r2[r2_id]
                 data[_id] = r2
 
         return data
@@ -177,16 +190,19 @@ class instances_handler(base):
     datatype = "aws.ec2.instances"
 
     def _fetch_one_client(self, client):
-        specifics = {}
-        for page in self._paged_op(client, "describe_instances"):
-            reservations = page["Reservations"]
-            for reservation in reservations:
-                instances = reservation["Instances"]
-                for instance in instances:
-                    _id = instance["InstanceId"]
-                    specifics[_id] = instance
+        data = {}
+        operator = "describe_instances"
+        r1_key = "Reservations"
+        r2_key = "Instances"
+        r3_id = "InstanceId"
 
-        return specifics
+        for r1 in self._paged_op(client, operator):
+            for r2 in r1[r1_key]:
+                for r3 in r2[r2_key]:
+                    _id = r3[r3_id]
+                    data[_id] = r3
+
+        return data
 
 
 class tags_handler(base):
@@ -194,17 +210,20 @@ class tags_handler(base):
     datatype = "aws.ec2.tags"
 
     def _fetch_one_client(self, client):
-        specifics = {}
-        for page in self._paged_op(client, "describe_tags"):
-            tags = page["Tags"]
-            for tag in tags:
-                _id = tag["ResourceId"]
-                k = tag["Key"]
-                v = tag["Value"]
+        data = {}
+        operator = "describe_tags"
+        r1_key = "Tags"
+        r2_id = "ResourceId"
 
-                if _id not in specifics:
-                    specifics[_id] = {}
+        for r1 in self._paged_op(client, operator):
+            for r2 in r1[r1_key]:
+                _id = r2[r2_id]
+                k = r2["Key"]
+                v = r2["Value"]
 
-                specifics[_id][k] = v
+                if _id not in data:
+                    data[_id] = {}
 
-        return specifics
+                data[_id][k] = v
+
+        return data
