@@ -85,6 +85,19 @@ class base:
                 yield page
 
 
+class _data_two_deep(base):
+    """Generic parser for simple structure with two layers"""
+    def _fetch_one_client(self, client):
+        data = {}
+
+        for r1 in self._paged_op(client, self.operator):
+            for r2 in r1[self.r1_key]:
+                _id = r2[self.r2_id]
+                data[_id] = r2
+
+        return data
+
+
 class account_attributes_handler(base):
     datatype = "aws.ec2.account_attributes"
 
@@ -98,7 +111,7 @@ class account_attributes_handler(base):
                 k = r2["AttributeName"]
 
                 values = []
-                for value in attr["AttributeValues"]:
+                for value in r2["AttributeValues"]:
                     values.append(value["AttributeValue"])
 
                 data[k] = ",".join(values)
@@ -106,21 +119,11 @@ class account_attributes_handler(base):
         return {0: data}
 
 
-class availability_zones_handler(base):
+class availability_zones_handler(_data_two_deep):
     datatype = "aws.ec2.availability_zones"
-
-    def _fetch_one_client(self, client):
-        data = {}
-        operator = "describe_availability_zones"
-        r1_key = "AvailabilityZones"
-        r2_id = "ZoneId"
-
-        for r1 in self._paged_op(client, operator):
-            for r2 in r1[r1_key]:
-                _id = r2[r2_id]
-                data[_id] = r2
-
-        return data
+    operator = "describe_availability_zones"
+    r1_key = "AvailabilityZones"
+    r2_id = "ZoneId"
 
 
 class dhcp_options_handler(base):
@@ -152,38 +155,18 @@ class dhcp_options_handler(base):
         return data
 
 
-class host_reservation_offerings_handler(base):
+class host_reservation_offerings_handler(_data_two_deep):
     datatype = "aws.ec2.host_reservation_offerings"
-
-    def _fetch_one_client(self, client):
-        data = {}
-        operator = "describe_host_reservation_offerings"
-        r1_key = "OfferingSet"
-        r2_id = "OfferingId"
-
-        for r1 in self._paged_op(client, operator):
-            for r2 in r1[r1_key]:
-                _id = r2[r2_id]
-                data[_id] = r2
-
-        return data
+    operator = "describe_host_reservation_offerings"
+    r1_key = "OfferingSet"
+    r2_id = "OfferingId"
 
 
-class images_handler(base):
+class images_handler(_data_two_deep):
     datatype = "aws.ec2.images"
-
-    def _fetch_one_client(self, client):
-        data = {}
-        operator = "describe_images"
-        r1_key = "Images"
-        r2_id = "ImageId"
-
-        for r1 in self._paged_op(client, operator):
-            for r2 in r1[r1_key]:
-                _id = r2[r2_id]
-                data[_id] = r2
-
-        return data
+    operator = "describe_images"
+    r1_key = "Images"
+    r2_id = "ImageId"
 
 
 class instances_handler(base):
