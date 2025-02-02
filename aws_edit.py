@@ -171,15 +171,15 @@ def process_data_yaml(data):
     for group in data._list:
         for _id, item in group.data.items():
             this = {}
-            this["buildinfo"] = {}
-            this["buildinfo"]["datatype"] = group.datatype
-            this["buildinfo"]["profile"] = group.session.profile_name
-            this["buildinfo"]["region"] = group.region
+            this["datatype"] = group.datatype
+            this["metadata"] = {}
+            this["metadata"]["profile"] = group.session.profile_name
+            this["metadata"]["region"] = group.region
 
             # TODO: this will probably not be generic for other datatypes
-            this["buildinfo"]["resourceid"] = _id
+            this["metadata"]["resourceid"] = _id
 
-            this["data"] = item
+            this["specifics"] = item
 
             output.append(this)
 
