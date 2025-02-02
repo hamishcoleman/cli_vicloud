@@ -133,6 +133,9 @@ class aws_ec2_base:
         )
 
         for page in response:
+            # TODO
+            # if not quiet and enough tags since last print
+            #   print stderr fetching ...
             yield page
 
 
@@ -143,9 +146,6 @@ class aws_ec2_tags_handler(aws_ec2_base):
     def _fetch_one_client(self, client):
         specifics = {}
         for page in self._paginator_helper(client, "describe_tags"):
-            # TODO
-            # if not quiet and enough tags since last print
-            #   print stderr fetching ...
             tags = page["Tags"]
             for tag in tags:
                 _id = tag["ResourceId"]
