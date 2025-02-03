@@ -47,7 +47,8 @@ class base:
         self.verbose = 0
 
     def _log_fetch_op(self, client, operation):
-        profile_name = ""   # TODO?
+        # Note we are abusing the client object with ou profile name storage
+        profile_name = client._profile_name
         region = client._client_config.region_name
 
         if self.verbose:
@@ -61,11 +62,6 @@ class base:
         profiles_done = {}
         for session in sessions:
             profile_name = session["session"].profile_name
-            if self.verbose:
-                print(
-                    f'{profile_name}:{session["region"]}:',
-                    file=sys.stderr
-                )
 
             if self.single_region and profile_name in profiles_done:
                 # skip all but the first region
@@ -82,6 +78,8 @@ class base:
                 self.service_name,
                 region_name=resultset.region,
             )
+            # stash our name inside their client object
+            client._profile_name = profile_name
 
             specifics = self._fetch_one_client(client)
             if specifics:
