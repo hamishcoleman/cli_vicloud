@@ -43,6 +43,21 @@ class Definition:
             this.update(row)
             yield this
 
+    def canonical_data(self):
+        """Return the data in our cannonical storage format"""
+
+        for _id, row in self.data.items():
+            this = {
+                "datatype": self.datatype,
+                "metadata": {
+                    "profile": self.session.profile_name,
+                    "region": self.region,
+                    "resourceid": _id,
+                },
+                "specifics": row,
+            }
+            yield this
+
 
 class DefinitionSet:
     """A list of definitions"""
@@ -63,7 +78,13 @@ class DefinitionSet:
         return d
 
     def csv_rows(self):
-        """Yield the contents"""
+        """Yield the contents for csv"""
         for data in self._list:
             for row in data.csv_rows():
+                yield row
+
+    def canonical_data(self):
+        """Yield the contents for storage"""
+        for data in self._list:
+            for row in data.canonical_data():
                 yield row

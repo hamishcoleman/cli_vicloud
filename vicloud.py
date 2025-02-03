@@ -78,29 +78,15 @@ def output_data_yaml(data, file):
     # - use an accessor for the Definition data
 
     output = []
-    for group in data._list:
-        for _id, item in group.data.items():
-            this = {}
-            this["datatype"] = group.datatype
-            this["metadata"] = {}
-            this["metadata"]["profile"] = group.session.profile_name
-            this["metadata"]["region"] = group.region
-
-            # TODO: this will probably not be generic for other datatypes
-            this["metadata"]["resourceid"] = _id
-
-            this["specifics"] = item
-
-            output.append(this)
-
-    yamlstr = yaml.safe_dump_all(
-        output,
-        explicit_start=True,
-        explicit_end=True,
-        default_flow_style=False,
-        sort_keys=True,
-    )
-    print(yamlstr, file=file)
+    for item in data.canonical_data():
+        yamlstr = yaml.safe_dump(
+            item,
+            explicit_start=True,
+            default_flow_style=False,
+            sort_keys=True,
+        )
+        print(yamlstr, file=file, end="")
+    print("...")
 
 
 def process_data(args, data):
