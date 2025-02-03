@@ -12,6 +12,7 @@ class list_users(base, aws._data_two_deep):
     r1_key = "Users"
     r2_id = "UserId"
 
+
 class list_roles(base, aws._data_two_deep):
     datatype = "aws.iam.list_roles"
     operator = "list_roles"
