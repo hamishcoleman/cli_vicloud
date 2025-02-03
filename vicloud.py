@@ -36,16 +36,16 @@ import aws.iam  # noqa
 
 
 def output_data_csv(data, file):
-    fields = sorted(data.fields())
+    fields = sorted(data.csv_fields())
     writer = csv.DictWriter(file, fieldnames=fields)
     writer.writeheader()
-    for row in data.rows():
+    for row in data.csv_rows():
         writer.writerow(row)
 
 
 def output_data_json(data, file):
     output = []
-    for row in data.rows():
+    for row in data.csv_rows():
         output.append(row)
     json.dump(
         output,

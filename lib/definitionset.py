@@ -18,7 +18,7 @@ class Definition:
     def __repr__(self):
         return str(self.__dict__)
 
-    def fields(self):
+    def csv_fields(self):
         """Return the field names of both metadata and data"""
         d = set()
         d.add("@DataType")
@@ -31,7 +31,7 @@ class Definition:
 
         return d
 
-    def rows(self):
+    def csv_rows(self):
         """Yield the contents (with metadata added)"""
 
         for _id, row in self.data.items():
@@ -55,15 +55,15 @@ class DefinitionSet:
     def append(self, data):
         self._list.append(data)
 
-    def fields(self):
+    def csv_fields(self):
         """Return the combined field names of all the definitions"""
         d = set()
         for data in self._list:
-            d.update(data.fields())
+            d.update(data.csv_fields())
         return d
 
-    def rows(self):
+    def csv_rows(self):
         """Yield the contents"""
         for data in self._list:
-            for row in data.rows():
+            for row in data.csv_rows():
                 yield row
