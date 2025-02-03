@@ -87,7 +87,7 @@ class base:
         raise NotImplementedError
 
     @classmethod
-    def _paged_op(cls, client, operation):
+    def _paged_op(cls, client, operation, **kwargs):
         """Wrap possible pagination in a helper"""
 
         if not client.can_paginate(operation):
@@ -97,12 +97,14 @@ class base:
             token = None
             paginator = client.get_paginator(operation)
 
-            response = paginator.paginate(
-                PaginationConfig={
+            kwargs.update({
+                "PaginationConfig": {
                     "PageSize": 50,
                     "StartingToken": token,
                 }
-            )
+            })
+
+            response = paginator.paginate(**kwargs)
 
             for page in response:
                 # TODO
