@@ -128,23 +128,20 @@ def process_data(args, data):
 subc_list = {
     "ec2": {
         "help": "Virtual machines (Elastic Compute Cloud)",
-        "subc": {
-        },
     },
     "elb": {
         "help": "Elastic Load Balancer",
-        "subc": {
-        },
     },
     "iam": {
         "help": "Users and Perms (IAM)",
-        "subc": {
-        },
     },
 }
 
 
 def argparser_populate_subc(subc, module, prefix):
+    if "subc" not in subc:
+        subc["subc"] = {}
+
     """Inspect the given module for handlers to add to the subc"""
     for name, obj in inspect.getmembers(module):
         if not inspect.isclass(obj):
@@ -159,11 +156,11 @@ def argparser_populate_subc(subc, module, prefix):
 
         name = obj.datatype[len(prefix):]
 
-        if name in subc:
+        if name in subc["subc"]:
             raise ValueError(f"duplicate subc {name}")
 
-        subc[name] = {}
-        subc[name]["handler"] = obj
+        subc["subc"][name] = {}
+        subc["subc"][name]["handler"] = obj
 
 
 def argparser_subc(argp, subc_list):
@@ -259,9 +256,9 @@ def argparser():
 
 
 def main():
-    argparser_populate_subc(subc_list["ec2"]["subc"], aws.ec2, "aws.ec2.")
-    argparser_populate_subc(subc_list["elb"]["subc"], aws.elb, "aws.elbv2.")
-    argparser_populate_subc(subc_list["iam"]["subc"], aws.iam, "aws.iam.")
+    argparser_populate_subc(subc_list["ec2"], aws.ec2, "aws.ec2.")
+    argparser_populate_subc(subc_list["elb"], aws.elb, "aws.elbv2.")
+    argparser_populate_subc(subc_list["iam"], aws.iam, "aws.iam.")
     args = argparser()
 
     if not args.command:
