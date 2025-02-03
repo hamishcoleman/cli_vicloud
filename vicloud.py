@@ -30,6 +30,7 @@ sys.path.insert(
 
 import aws      # noqa
 import aws.ec2  # noqa
+import aws.eks  # noqa
 import aws.elb  # noqa
 import aws.iam  # noqa
 
@@ -128,6 +129,9 @@ def process_data(args, data):
 subc_list = {
     "ec2": {
         "help": "Virtual machines (Elastic Compute Cloud)",
+    },
+    "eks": {
+        "help": "Elastic K8s Service",
     },
     "elb": {
         "help": "Elastic Load Balancer",
@@ -257,6 +261,7 @@ def argparser():
 
 def main():
     argparser_populate_subc(subc_list["ec2"], aws.ec2, "aws.ec2.")
+    argparser_populate_subc(subc_list["eks"], aws.eks, "aws.eks.")
     argparser_populate_subc(subc_list["elb"], aws.elb, "aws.elbv2.")
     argparser_populate_subc(subc_list["iam"], aws.iam, "aws.iam.")
     args = argparser()
