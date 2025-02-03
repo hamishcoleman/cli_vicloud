@@ -46,6 +46,16 @@ class base:
     def __init__(self):
         self.verbose = 0
 
+    def _log_fetch_op(self, client, operation):
+        profile_name = ""   # TODO?
+        region = client._client_config.region_name
+
+        if self.verbose:
+            print(
+                f"{profile_name}:{region}: fetch {operation}",
+                file=sys.stderr
+            )
+
     def fetch(self, args, sessions):
         db = definitionset.DefinitionSet()
         profiles_done = {}
@@ -53,7 +63,7 @@ class base:
             profile_name = session["session"].profile_name
             if self.verbose:
                 print(
-                    f'{profile_name}:{session["region"]}: fetch',
+                    f'{profile_name}:{session["region"]}:',
                     file=sys.stderr
                 )
 
@@ -117,6 +127,8 @@ class _data_two_deep(base):
     """Generic parser for simple structure with two layers"""
     def _fetch_one_client(self, client):
         data = {}
+
+        self._log_fetch_op(client, self.operator)
 
         for r1 in self._paged_op(client, self.operator):
             for r2 in r1[self.r1_key]:

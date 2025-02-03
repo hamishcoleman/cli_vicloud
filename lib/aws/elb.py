@@ -18,16 +18,15 @@ class listeners(base):
         for _id, elb in loadbalancers.items():
             arns.add(elb["LoadBalancerArn"])
 
+        operator = "describe_listeners"
         r1_key = "Listeners"
         r2_id = "ListenerArn"
 
+        self._log_fetch_op(client, operator)
+
         data = {}
         for arn in arns:
-            for r1 in self._paged_op(
-                    client,
-                    "describe_listeners",
-                    LoadBalancerArn=arn
-            ):
+            for r1 in self._paged_op(client, operator, LoadBalancerArn=arn):
                 for r2 in r1[r1_key]:
                     _id = r2[r2_id]
                     data[_id] = r2
@@ -55,16 +54,15 @@ class rules(base):
         for _id, listener in _list.items():
             arns.add(listener["ListenerArn"])
 
+        operator = "describe_rules"
         r1_key = "Rules"
         r2_id = "RuleArn"
 
+        self._log_fetch_op(client, operator)
+
         data = {}
         for arn in arns:
-            for r1 in self._paged_op(
-                    client,
-                    "describe_rules",
-                    ListenerArn=arn
-            ):
+            for r1 in self._paged_op(client, operator, ListenerArn=arn):
                 for r2 in r1[r1_key]:
                     _id = r2[r2_id]
                     data[_id] = r2

@@ -13,6 +13,8 @@ class account_attributes(base):
         operator = "describe_account_attributes"
         r1_key = "AccountAttributes"
 
+        self._log_fetch_op(client, operator)
+
         for r1 in self._paged_op(client, operator):
             for r2 in r1[r1_key]:
                 k = r2["AttributeName"]
@@ -43,6 +45,8 @@ class dhcp_options(base):
         operator = "describe_dhcp_options"
         r1_key = "DhcpOptions"
         r2_id = "DhcpOptionsId"
+
+        self._log_fetch_op(client, operator)
 
         for r1 in self._paged_op(client, operator):
             for r2 in r1[r1_key]:
@@ -101,6 +105,8 @@ class instances(base):
         r1_key = "Reservations"
         r2_key = "Instances"
         r3_id = "InstanceId"
+
+        self._log_fetch_op(client, operator)
 
         for r1 in self._paged_op(client, operator):
             for r2 in r1[r1_key]:
@@ -196,6 +202,8 @@ class tags(base):
         operator = "describe_tags"
         r1_key = "Tags"
         r2_id = "ResourceId"
+
+        self._log_fetch_op(client, operator)
 
         for r1 in self._paged_op(client, operator):
             for r2 in r1[r1_key]:
