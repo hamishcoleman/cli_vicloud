@@ -25,7 +25,7 @@ class account_attributes(base):
 
                 data[k] = ",".join(values)
 
-        return {0: data}
+        return {"0": data}
 
 
 class availability_zones(base, aws._data_two_deep):

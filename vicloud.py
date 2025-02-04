@@ -98,7 +98,7 @@ def output_files_yaml(data, verbose):
             *item["datatype"].split("."),
             item["metadata"]["profile"],
             item["metadata"]["region"],
-            *item["metadata"]["resourceid"].split("/"),
+            *(str(item["metadata"]["resourceid"]).split("/")),
         ]
 
         pathname = os.path.join(*path_components[:-1])
