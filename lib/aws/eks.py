@@ -124,18 +124,70 @@ class insights(_cluster_foreach):
     r1_key = "insights"
 
 
-class nodegroups(_cluster_foreach):
-    datatype = "aws.eks.nodegroups"
+class nodegroup(base):
+    datatype = "aws.eks.nodegroup"
     dump = True
-    operator = "list_nodegroups"
-    r1_key = "nodegroups"
+    operator = "describe_nodegroup"
+    r1_key = "nodegroup"
+    r2_id = "nodegroupName"
+
+    def _fetch_one_client(self, client):
+        # first, get the list of clusters
+        handler = list_clusters()
+        handler.verbose = self.verbose
+        clusters = handler._fetch_one_client(client)
+
+        for cluster in clusters.keys():
+            handler = list_nodegroups()
+            handler.verbose = self.verbose
+            nodegroups = handler._fetch_one_client(client)
+
+            self._log_fetch_op(client, self.operator)
+
+            data = {}
+            for nodegroup in nodegroups[cluster]:
+                kwargs = {
+                    "clusterName": cluster,
+                    "nodegroupName": nodegroup,
+                }
+                for r1 in self._paged_op(client, self.operator, **kwargs):
+                    _id = r1[self.r1_key][self.r2_id]
+                    data[_id] = r1[self.r1_key]
+
+        return data
 
 
-class pod_identity_associations(_cluster_foreach):
-    datatype = "aws.eks.pod_identity_associations"
+class pod_identity_association(base):
+    datatype = "aws.eks.pod_identity_association"
     dump = True
-    operator = "list_pod_identity_associations"
-    r1_key = "associations"
+    operator = "describe_pod_identity_association"
+    r1_key = "association"
+    r2_id = "associationId"
+
+    def _fetch_one_client(self, client):
+        # first, get the list of clusters
+        handler = list_clusters()
+        handler.verbose = self.verbose
+        clusters = handler._fetch_one_client(client)
+
+        for cluster in clusters.keys():
+            handler = list_pod_identity_associations()
+            handler.verbose = self.verbose
+            pods = handler._fetch_one_client(client)
+
+            self._log_fetch_op(client, self.operator)
+
+            data = {}
+            for pod in pods[cluster]:
+                kwargs = {
+                    "clusterName": cluster,
+                    "associationId": pod["associationId"],
+                }
+                for r1 in self._paged_op(client, self.operator, **kwargs):
+                    _id = r1[self.r1_key][self.r2_id]
+                    data[_id] = r1[self.r1_key]
+
+        return data
 
 
 class list_access_entries(_cluster_foreach):
@@ -164,3 +216,13 @@ class list_clusters(base):
                 }
 
         return data
+
+
+class list_nodegroups(_cluster_foreach):
+    operator = "list_nodegroups"
+    r1_key = "nodegroups"
+
+
+class list_pod_identity_associations(_cluster_foreach):
+    operator = "list_pod_identity_associations"
+    r1_key = "associations"
