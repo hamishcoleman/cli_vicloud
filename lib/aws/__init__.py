@@ -110,7 +110,7 @@ class base:
 
         if not client.can_paginate(operation):
             operator = getattr(client, operation)
-            yield operator()
+            yield operator(**kwargs)
         else:
             token = None
             paginator = client.get_paginator(operation)
