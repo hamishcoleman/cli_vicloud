@@ -6,9 +6,11 @@ class base(aws.base):
 
 
 class _cluster_foreach(base):
+    cluster_param_name = "clusterName"
+
     def _fetch_one_client(self, client):
         # first, get the list of clusters
-        handler = clusters()
+        handler = list_clusters()
         handler.verbose = self.verbose
         names = handler._fetch_one_client(client)
 
@@ -16,17 +18,46 @@ class _cluster_foreach(base):
 
         data = {}
         for name in names.keys():
-            for r1 in self._paged_op(client, self.operator, clusterName=name):
+            kwargs = {
+                self.cluster_param_name: name,
+            }
+            for r1 in self._paged_op(client, self.operator, **kwargs):
                 data[name] = r1[self.r1_key]
 
         return data
 
 
-class access_entries(_cluster_foreach):
-    datatype = "aws.eks.access_entries"
+class access_entries(base):
+    datatype = "aws.eks.access_entry"
     dump = True
-    operator = "list_access_entries"
-    r1_key = "accessEntries"
+    operator = "describe_access_entry"
+    r1_key = "accessEntry"
+    r2_id = "accessEntryArn"
+
+    def _fetch_one_client(self, client):
+        # first, get the list of clusters
+        handler = list_clusters()
+        handler.verbose = self.verbose
+        clusters = handler._fetch_one_client(client)
+
+        for cluster in clusters.keys():
+            handler = list_access_entries()
+            handler.verbose = self.verbose
+            access_entries = handler._fetch_one_client(client)
+
+            self._log_fetch_op(client, self.operator)
+
+            data = {}
+            for access in access_entries[cluster]:
+                kwargs = {
+                    "clusterName": cluster,
+                    "principalArn": access,
+                }
+                for r1 in self._paged_op(client, self.operator, **kwargs):
+                    _id = r1[self.r1_key][self.r2_id]
+                    data[_id] = r1[self.r1_key]
+
+        return data
 
 
 class addons(_cluster_foreach):
@@ -34,6 +65,15 @@ class addons(_cluster_foreach):
     dump = True
     operator = "list_addons"
     r1_key = "addons"
+
+
+class cluster(_cluster_foreach):
+    datatype = "aws.eks.cluster"
+    dump = True
+    operator = "describe_cluster"
+    r1_key = "cluster"
+    cluster_param_name = "name"
+
 
 
 class fargate_profiles(_cluster_foreach):
@@ -72,8 +112,12 @@ class pod_identity_associations(_cluster_foreach):
     r1_key = "associations"
 
 
-class clusters(base):
-    datatype = "aws.eks.clusters"
+class list_access_entries(_cluster_foreach):
+    operator = "list_access_entries"
+    r1_key = "accessEntries"
+
+
+class list_clusters(base):
     operator = "list_clusters"
     r1_key = "clusters"
 
