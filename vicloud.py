@@ -91,6 +91,9 @@ def output_data_yaml(data, file):
 
 def output_files_yaml(data, verbose):
     """Create a directory hierachy with one file per resource"""
+    # TODO:
+    # - track the dirs touched and the filenames created in these
+    #   then delete those files that are stale
 
     for item in data.canonical_data():
 
