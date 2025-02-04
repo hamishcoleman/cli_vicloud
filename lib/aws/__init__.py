@@ -50,10 +50,11 @@ class base:
         # Note we are abusing the client object with ou profile name storage
         profile_name = client._profile_name
         region = client._client_config.region_name
+        service_name = self.service_name
 
         if self.verbose:
             print(
-                f"{profile_name}:{region}: fetch {operation}",
+                f"{profile_name}:{region}:{service_name} fetch {operation}",
                 file=sys.stderr
             )
 
