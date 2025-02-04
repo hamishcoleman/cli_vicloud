@@ -89,6 +89,37 @@ def output_data_yaml(data, file):
     print("...")
 
 
+def output_files_yaml(data, verbose):
+    """Create a directory hierachy with one file per resource"""
+
+    for item in data.canonical_data():
+
+        # Warning, resourceid could contain "/" chars
+        path_components = [
+            *item["datatype"].split("."),
+            item["metadata"]["profile"],
+            item["metadata"]["region"],
+            *item["metadata"]["resourceid"].split("/"),
+        ]
+
+        pathname = os.path.join(*path_components[:-1])
+        filename = os.path.join(*path_components) + ".yaml"
+
+        yamlstr = yaml.safe_dump(
+            item,
+            explicit_start=True,
+            explicit_end=True,
+            default_flow_style=False,
+            sort_keys=True,
+        )
+
+        os.makedirs(pathname, exist_ok=True)
+
+        print(filename)
+        with open(filename, mode="w") as f:
+            print(yamlstr, file=f)
+
+
 def process_data(args, data):
     # TODO:
     # if show table ..
@@ -97,6 +128,10 @@ def process_data(args, data):
 
     if args.mode == "csv":
         output_data_csv(data, sys.stdout)
+        return
+
+    if args.mode == "files":
+        output_files_yaml(data, args.verbose)
         return
 
     if args.mode == "json":
@@ -208,6 +243,7 @@ def argparser():
         "--mode",
         choices=[
             "csv",
+            "files",
             "json",
             "vd",
             "yaml",
