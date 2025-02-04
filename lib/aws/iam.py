@@ -7,6 +7,8 @@ class base(aws.base):
 
 class list_users(base, aws._data_two_deep):
     datatype = "aws.iam.list_users"
+    # Note: dumping a single_region object may cause non idempotent regions
+    dump = True
     operator = "list_users"
     single_region = True
     r1_key = "Users"

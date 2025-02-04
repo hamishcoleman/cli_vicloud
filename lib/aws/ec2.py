@@ -7,6 +7,7 @@ class base(aws.base):
 
 class account_attributes(base):
     datatype = "aws.ec2.account_attributes"
+    dump = True
 
     def _fetch_one_client(self, client):
         data = {}
@@ -39,6 +40,7 @@ class availability_zones(base, aws._data_two_deep):
 
 class dhcp_options(base):
     datatype = "aws.ec2.dhcp_options"
+    dump = True
 
     def _fetch_one_client(self, client):
         data = {}
@@ -98,6 +100,7 @@ class instance_types(base, aws._data_two_deep):
 
 class instances(base):
     datatype = "aws.ec2.instances"
+    dump = True
 
     def _fetch_one_client(self, client):
         data = {}
@@ -119,6 +122,7 @@ class instances(base):
 
 class internet_gateways(base, aws._data_two_deep):
     datatype = "aws.ec2.internet_gateways"
+    dump = True
     operator = "describe_internet_gateways"
     r1_key = "InternetGateways"
     r2_id = "InternetGatewayId"
@@ -126,6 +130,7 @@ class internet_gateways(base, aws._data_two_deep):
 
 class key_pairs(base, aws._data_two_deep):
     datatype = "aws.ec2.key_pairs"
+    dump = True
     operator = "describe_key_pairs"
     r1_key = "KeyPairs"
     r2_id = "KeyPairId"
@@ -145,6 +150,7 @@ class managed_prefix_lists(base, aws._data_two_deep):
 
 class network_interfaces(base, aws._data_two_deep):
     datatype = "aws.ec2.network_interfaces"
+    dump = True
     operator = "describe_network_interfaces"
     r1_key = "NetworkInterfaces"
     r2_id = "NetworkInterfaceId"
@@ -167,6 +173,7 @@ class regions(base, aws._data_two_deep):
 
 class route_tables(base, aws._data_two_deep):
     datatype = "aws.ec2.route_tables"
+    dump = True
     operator = "describe_route_tables"
     r1_key = "RouteTables"
     r2_id = "RouteTableId"
@@ -174,6 +181,7 @@ class route_tables(base, aws._data_two_deep):
 
 class security_group_rules(base, aws._data_two_deep):
     datatype = "aws.ec2.security_group_rules"
+    dump = True
     operator = "describe_security_group_rules"
     r1_key = "SecurityGroupRules"
     r2_id = "SecurityGroupRuleId"
@@ -188,6 +196,7 @@ class snapshots(base, aws._data_two_deep):
 
 class subnets(base, aws._data_two_deep):
     datatype = "aws.ec2.subnets"
+    dump = True
     operator = "describe_subnets"
     r1_key = "Subnets"
     r2_id = "SubnetId"
@@ -196,6 +205,7 @@ class subnets(base, aws._data_two_deep):
 class tags(base):
     """Edit ec2 tags"""
     datatype = "aws.ec2.tags"
+    dump = True
 
     def _fetch_one_client(self, client):
         data = {}
@@ -233,6 +243,7 @@ class tags(base):
 
 class volume_status(base, aws._data_two_deep):
     datatype = "aws.ec2.volume_status"
+    dump = True
     operator = "describe_volume_status"
     r1_key = "VolumeStatuses"
     r2_id = "VolumeId"
@@ -240,6 +251,7 @@ class volume_status(base, aws._data_two_deep):
 
 class volumes(base, aws._data_two_deep):
     datatype = "aws.ec2.volumes"
+    dump = True
     operator = "describe_volumes"
     r1_key = "Volumes"
     r2_id = "VolumeId"
@@ -263,6 +275,7 @@ class vpc_endpoint_services(base, aws._data_two_deep):
 
 class vpcs(base, aws._data_two_deep):
     datatype = "aws.ec2.vpcs"
+    dump = True
     operator = "describe_vpcs"
     r1_key = "Vpcs"
     r2_id = "VpcId"

@@ -33,6 +33,7 @@ import aws.ec2  # noqa
 import aws.eks  # noqa
 import aws.elb  # noqa
 import aws.iam  # noqa
+import definitionset   # noqa
 
 
 def output_data_csv(data, file):
@@ -146,7 +147,46 @@ def process_data(args, data):
         return
 
 
+class dumper:
+    # Avoid dumping the dumper ..
+    dump = False
+
+    def fetch(self, args, sessions):
+        global subc_list
+
+        db = definitionset.DefinitionSet()
+
+        # TODO:
+        # just recurse the subc_list
+
+        for major_name, major  in subc_list.items():
+            if "subc" not in major:
+                continue
+            for minor_name, minor in major["subc"].items():
+                if "handler" not in minor:
+                    continue
+                cls = minor["handler"]
+
+                handler = cls()
+                handler.verbose = args.verbose
+
+                if not handler.dump:
+                    continue
+
+
+                data = handler.fetch(args, sessions)
+
+                if data:
+                    # TODO: use an accessor and not just grub around for _list
+                    db._list += data._list
+
+        return db
+
+
 subc_list = {
+    "dump": {
+        "handler": dumper,
+    },
     "ec2": {
         "help": "Virtual machines (Elastic Compute Cloud)",
     },

@@ -24,12 +24,14 @@ class _cluster_foreach(base):
 
 class access_entries(_cluster_foreach):
     datatype = "aws.eks.access_entries"
+    dump = True
     operator = "list_access_entries"
     r1_key = "accessEntries"
 
 
 class addons(_cluster_foreach):
     datatype = "aws.eks.addons"
+    dump = True
     operator = "list_addons"
     r1_key = "addons"
 
@@ -58,12 +60,14 @@ class insights(_cluster_foreach):
 
 class nodegroups(_cluster_foreach):
     datatype = "aws.eks.nodegroups"
+    dump = True
     operator = "list_nodegroups"
     r1_key = "nodegroups"
 
 
 class pod_identity_associations(_cluster_foreach):
     datatype = "aws.eks.pod_identity_associations"
+    dump = True
     operator = "list_pod_identity_associations"
     r1_key = "associations"
 

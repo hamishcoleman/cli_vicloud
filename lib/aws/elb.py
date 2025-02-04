@@ -7,6 +7,7 @@ class base(aws.base):
 
 class listeners(base):
     datatype = "aws.elbv2.listeners"
+    dump = True
 
     def _fetch_one_client(self, client):
         # first, get the list of load_balancers
@@ -36,6 +37,7 @@ class listeners(base):
 
 class load_balancers(base, aws._data_two_deep):
     datatype = "aws.elbv2.load_balancers"
+    dump = True
     operator = "describe_load_balancers"
     r1_key = "LoadBalancers"
     r2_id = "LoadBalancerName"
@@ -43,6 +45,7 @@ class load_balancers(base, aws._data_two_deep):
 
 class rules(base):
     datatype = "aws.elbv2.rules"
+    dump = True
 
     def _fetch_one_client(self, client):
         # first, get the list of listeners
@@ -72,6 +75,7 @@ class rules(base):
 
 class target_groups(base, aws._data_two_deep):
     datatype = "aws.elbv2.target_groups"
+    dump = True
     operator = "describe_target_groups"
     r1_key = "TargetGroups"
     r2_id = "TargetGroupName"

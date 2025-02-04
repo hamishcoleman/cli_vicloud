@@ -42,6 +42,7 @@ def setup_sessions(verbose, profiles, regions):
 
 class base:
     single_region = False
+    dump = False
 
     def __init__(self):
         self.verbose = 0
