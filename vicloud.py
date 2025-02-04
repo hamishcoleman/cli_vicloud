@@ -77,7 +77,6 @@ def output_data_yaml(data, file):
     # - use an accessor for the DefinitionSet list
     # - use an accessor for the Definition data
 
-    output = []
     for item in data.canonical_data():
         yamlstr = yaml.safe_dump(
             item,
