@@ -84,11 +84,19 @@ class base:
             client._profile_name = profile_name
 
             specifics = self._fetch_one_client(client)
-            if specifics:
-                resultset.data = specifics
-                db.append(resultset)
+            if not specifics:
+                continue
+
+            self._mutate(specifics)
+
+            resultset.data = specifics
+            db.append(resultset)
 
         return db
+
+    def _mutate(self, data):
+        """Optionally mutate data before storing it"""
+        return
 
     def _fetch_one_client(self, client):
         raise NotImplementedError
@@ -136,3 +144,18 @@ class _data_two_deep(base):
                 data[_id] = r2
 
         return data
+
+class _mutate_sortarray(base):
+    """Apply any array order stabilisation steps"""
+
+    def _mutate(self, data):
+
+        def do_sort(array, orderby):
+            def _key(item):
+                return item.get(orderby, None)
+
+            return sorted(array, key=_key)
+
+        for _id, item in data.items():
+            for keyname, orderby in self.sortarray.items():
+                item[keyname] = do_sort(item[keyname], orderby)

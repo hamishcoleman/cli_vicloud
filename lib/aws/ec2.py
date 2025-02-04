@@ -171,12 +171,15 @@ class regions(base, aws._data_two_deep):
     r2_id = "RegionName"
 
 
-class route_tables(base, aws._data_two_deep):
+class route_tables(base, aws._data_two_deep, aws._mutate_sortarray):
     datatype = "aws.ec2.route_tables"
     dump = True
     operator = "describe_route_tables"
     r1_key = "RouteTables"
     r2_id = "RouteTableId"
+    sortarray = {
+        "Associations": "RouteTableAssociationId",
+    }
 
 
 class security_group_rules(base, aws._data_two_deep):
