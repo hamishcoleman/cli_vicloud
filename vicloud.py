@@ -91,9 +91,9 @@ def output_data_yaml(data, file):
 
 def output_files_yaml(data, verbose):
     """Create a directory hierachy with one file per resource"""
-    # TODO:
-    # - track the dirs touched and the filenames created in these
-    #   then delete those files that are stale
+
+    # track which dirs we have seen
+    seen_paths = set()
 
     for item in data.canonical_data():
 
@@ -117,6 +117,14 @@ def output_files_yaml(data, verbose):
         )
 
         os.makedirs(pathname, exist_ok=True)
+
+        if pathname not in seen_paths:
+            # The first time we touch a directory, we first empty it of any
+            # existing files (this will remove stale old data)
+            for name in os.listdir(pathname):
+                os.remove(os.path.join(pathname, name))
+
+        seen_paths.add(pathname)
 
         print(filename)
         with open(filename, mode="w") as f:
