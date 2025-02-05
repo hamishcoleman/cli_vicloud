@@ -136,6 +136,35 @@ class key_pairs(base, aws._data_two_deep):
     r2_id = "KeyPairId"
 
 
+class launch_template_versions(base):
+    """Fetch the most recent version of each template"""
+    datatype = "aws.ec2.launch_template_versions"
+    dump = True
+    operator = "describe_launch_template_versions"
+    r1_key = "LaunchTemplateVersions"
+    r2_id = "LaunchTemplateId"
+
+    def _fetch_one_client(self, client):
+        data = {}
+
+        self._log_fetch_op(client, self.operator)
+
+        for r1 in self._paged_op(client, self.operator, Versions=["$Latest"]):
+            for r2 in r1[self.r1_key]:
+                _id = r2[self.r2_id]
+                data[_id] = r2
+
+        return data
+
+
+class launch_templates(base, aws._data_two_deep):
+    datatype = "aws.ec2.launch_templates"
+    dump = True
+    operator = "describe_launch_templates"
+    r1_key = "LaunchTemplates"
+    r2_id = "LaunchTemplateId"
+
+
 class managed_prefix_lists(base, aws._data_two_deep):
     datatype = "aws.ec2.managed_prefix_lists"
     operator = "describe_managed_prefix_lists"
