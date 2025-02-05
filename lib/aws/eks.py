@@ -40,6 +40,7 @@ class access_entries(base):
         handler.verbose = self.verbose
         clusters = handler._fetch_one_client(client)
 
+        data = {}
         for cluster in clusters.keys():
             handler = list_access_entries()
             handler.verbose = self.verbose
@@ -47,7 +48,6 @@ class access_entries(base):
 
             self._log_fetch_op(client, self.operator)
 
-            data = {}
             for access in access_entries[cluster]:
                 kwargs = {
                     "clusterName": cluster,
@@ -73,6 +73,7 @@ class addon(base):
         handler.verbose = self.verbose
         clusters = handler._fetch_one_client(client)
 
+        data = {}
         for cluster in clusters.keys():
             handler = list_addons()
             handler.verbose = self.verbose
@@ -80,7 +81,6 @@ class addon(base):
 
             self._log_fetch_op(client, self.operator)
 
-            data = {}
             for addon in addons[cluster]:
                 kwargs = {
                     "clusterName": cluster,
@@ -136,6 +136,7 @@ class nodegroup(base):
         handler.verbose = self.verbose
         clusters = handler._fetch_one_client(client)
 
+        data = {}
         for cluster in clusters.keys():
             handler = list_nodegroups()
             handler.verbose = self.verbose
@@ -143,7 +144,6 @@ class nodegroup(base):
 
             self._log_fetch_op(client, self.operator)
 
-            data = {}
             for nodegroup in nodegroups[cluster]:
                 kwargs = {
                     "clusterName": cluster,
@@ -169,6 +169,7 @@ class pod_identity_association(base):
         handler.verbose = self.verbose
         clusters = handler._fetch_one_client(client)
 
+        data = {}
         for cluster in clusters.keys():
             handler = list_pod_identity_associations()
             handler.verbose = self.verbose
@@ -176,7 +177,6 @@ class pod_identity_association(base):
 
             self._log_fetch_op(client, self.operator)
 
-            data = {}
             for pod in pods[cluster]:
                 kwargs = {
                     "clusterName": cluster,
