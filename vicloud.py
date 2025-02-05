@@ -29,6 +29,7 @@ sys.path.insert(
 # I would use site.addsitedir, but it does an append, not insert
 
 import aws      # noqa
+import aws.autoscaling  # noqa
 import aws.ec2  # noqa
 import aws.eks  # noqa
 import aws.elb  # noqa
@@ -197,6 +198,8 @@ subc_list = {
     "dump": {
         "handler": dumper,
     },
+    "autoscaling": {
+    },
     "ec2": {
         "help": "Virtual machines (Elastic Compute Cloud)",
     },
@@ -246,8 +249,10 @@ def argparser_subc(argp, subc_list):
     for name, data in sorted(subc_list.items()):
         if "handler" in data:
             help = data["handler"].__doc__
-        else:
+        elif "help" in data:
             help = data["help"]
+        else:
+            help = None
         cmd = subp.add_parser(name, help=help)
 
         if "handler" in data:
@@ -331,6 +336,11 @@ def argparser():
 
 
 def main():
+    argparser_populate_subc(
+        subc_list["autoscaling"],
+        aws.autoscaling,
+        "aws.autoscaling."
+    )
     argparser_populate_subc(subc_list["ec2"], aws.ec2, "aws.ec2.")
     argparser_populate_subc(subc_list["eks"], aws.eks, "aws.eks.")
     argparser_populate_subc(subc_list["elb"], aws.elb, "aws.elbv2.")
