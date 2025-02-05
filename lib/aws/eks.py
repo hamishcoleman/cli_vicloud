@@ -101,7 +101,6 @@ class cluster(_cluster_foreach):
     cluster_param_name = "name"
 
 
-
 class fargate_profiles(_cluster_foreach):
     datatype = "aws.eks.fargate_profiles"
     operator = "list_fargate_profiles"

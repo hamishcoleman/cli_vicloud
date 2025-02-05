@@ -170,7 +170,7 @@ class dumper:
         # TODO:
         # just recurse the subc_list
 
-        for major_name, major  in subc_list.items():
+        for major_name, major in subc_list.items():
             if "subc" not in major:
                 continue
             for minor_name, minor in major["subc"].items():
@@ -183,7 +183,6 @@ class dumper:
 
                 if not handler.dump:
                     continue
-
 
                 data = handler.fetch(args, sessions)
 

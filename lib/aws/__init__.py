@@ -145,6 +145,7 @@ class _data_two_deep(base):
 
         return data
 
+
 class _mutate_sortarray(base):
     """Apply any array order stabilisation steps"""
 
