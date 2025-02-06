@@ -155,6 +155,12 @@ class nodegroup(base):
 
         return data
 
+    def _mutate(self, data):
+        # The modified date always appears to be "now"
+
+        for _id, item in data.items():
+            del item["modifiedAt"]
+
 
 class pod_identity_association(base):
     datatype = "aws.eks.pod_identity_association"
