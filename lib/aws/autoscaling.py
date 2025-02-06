@@ -14,6 +14,7 @@ class auto_scaling_groups(base, aws._data_two_deep):
 
 class auto_scaling_instances(base, aws._data_two_deep):
     datatype = "aws.autoscaling.auto_scaling_instances"
+    dump = True
     operator = "describe_auto_scaling_instances"
     r1_key = "AutoScalingInstances"
     r2_id = "InstanceId"
