@@ -64,21 +64,24 @@ class base:
         profiles_done = {}
         for session in sessions:
             profile_name = session["session"].profile_name
+            region_name = session["region"]
 
-            if self.single_region and profile_name in profiles_done:
-                # skip all but the first region
-                # TODO: use a cannonical region!
-                continue
+            if self.single_region:
+                region_name = "__SINGLE_REGION"
+
+                if profile_name in profiles_done:
+                    # skip all but the first region
+                    continue
             profiles_done[profile_name] = True
 
             resultset = definitionset.Definition()
             resultset.datatype = self.datatype
-            resultset.region = session["region"]
+            resultset.region = region_name
             resultset.session = session["session"]
 
             client = resultset.session.client(
                 self.service_name,
-                region_name=resultset.region,
+                region_name=session["region"],
             )
             # stash our name inside their client object
             client._profile_name = profile_name
