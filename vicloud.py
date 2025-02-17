@@ -214,12 +214,16 @@ subc_list = {
 }
 
 
-def argparser_populate_subc(l1name, module, prefix):
+def argparser_populate_subc(l1name, module, prefix=None):
+    """Inspect the given module for handlers to add to the subc"""
+
     subc = subc_list.setdefault(l1name, {})
     if "subc" not in subc:
         subc["subc"] = {}
 
-    """Inspect the given module for handlers to add to the subc"""
+    if prefix is None:
+        prefix = module.datatype_prefix
+
     for name, obj in inspect.getmembers(module):
         if not inspect.isclass(obj):
             # only care about classes
@@ -341,12 +345,12 @@ def argparser():
 
 
 def main():
-    argparser_populate_subc("autoscaling", aws.autoscaling, "aws.autoscaling.")
-    argparser_populate_subc("ec2", aws.ec2, "aws.ec2.")
-    argparser_populate_subc("eks", aws.eks, "aws.eks.")
-    argparser_populate_subc("elb", aws.elb, "aws.elbv2.")
-    argparser_populate_subc("iam", aws.iam, "aws.iam.")
-    argparser_populate_subc("logs", aws.logs, "aws.logs.")
+    argparser_populate_subc("autoscaling", aws.autoscaling)
+    argparser_populate_subc("ec2", aws.ec2)
+    argparser_populate_subc("eks", aws.eks)
+    argparser_populate_subc("elb", aws.elb)
+    argparser_populate_subc("iam", aws.iam)
+    argparser_populate_subc("logs", aws.logs)
     args = argparser()
 
     if not args.command:

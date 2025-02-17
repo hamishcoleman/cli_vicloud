@@ -1,8 +1,12 @@
 import aws
 
 
+_service_name = "eks"
+datatype_prefix = "aws." + _service_name + "."
+
+
 class base(aws.base):
-    service_name = "eks"
+    service_name = _service_name
 
 
 class _cluster_foreach(base):
@@ -28,7 +32,7 @@ class _cluster_foreach(base):
 
 
 class access_entries(base):
-    datatype = "aws.eks.access_entry"
+    datatype = datatype_prefix + "access_entry"
     dump = True
     operator = "describe_access_entry"
     r1_key = "accessEntry"
@@ -61,7 +65,7 @@ class access_entries(base):
 
 
 class addon(base):
-    datatype = "aws.eks.addon"
+    datatype = datatype_prefix + "addon"
     dump = True
     operator = "describe_addon"
     r1_key = "addon"
@@ -94,7 +98,7 @@ class addon(base):
 
 
 class cluster(_cluster_foreach):
-    datatype = "aws.eks.cluster"
+    datatype = datatype_prefix + "cluster"
     dump = True
     operator = "describe_cluster"
     r1_key = "cluster"
@@ -102,13 +106,13 @@ class cluster(_cluster_foreach):
 
 
 class fargate_profiles(_cluster_foreach):
-    datatype = "aws.eks.fargate_profiles"
+    datatype = datatype_prefix + "fargate_profiles"
     operator = "list_fargate_profiles"
     r1_key = "fargateProfileNames"
 
 
 # class identity_provider_configs(_cluster_foreach):
-#     datatype = "aws.eks.identity_provider_configs"
+#     datatype = datatype_prefix + "identity_provider_configs"
 #     operator = "list_identity_provider_configs"
 #     r1_key = "fargateProfileNames"
 #
@@ -118,13 +122,13 @@ class fargate_profiles(_cluster_foreach):
 
 
 class insights(_cluster_foreach):
-    datatype = "aws.eks.insights"
+    datatype = datatype_prefix + "insights"
     operator = "list_insights"
     r1_key = "insights"
 
 
 class nodegroup(base):
-    datatype = "aws.eks.nodegroup"
+    datatype = datatype_prefix + "nodegroup"
     dump = True
     operator = "describe_nodegroup"
     r1_key = "nodegroup"
@@ -163,7 +167,7 @@ class nodegroup(base):
 
 
 class pod_identity_association(base):
-    datatype = "aws.eks.pod_identity_association"
+    datatype = datatype_prefix + "pod_identity_association"
     dump = True
     operator = "describe_pod_identity_association"
     r1_key = "association"

@@ -1,12 +1,16 @@
 import aws
 
 
+_service_name = "elbv2"
+datatype_prefix = "aws." + _service_name + "."
+
+
 class base(aws.base):
-    service_name = "iam"
+    service_name = _service_name
 
 
 class list_access_keys(base):
-    datatype = "aws.iam.access_keys"
+    datatype = datatype_prefix + "access_keys"
     dump = True
     operator = "list_access_keys"
     single_region = True
@@ -41,7 +45,7 @@ class list_access_keys(base):
 
 
 class list_attached_user_policies(base):
-    datatype = "aws.iam.attached_user_policies"
+    datatype = datatype_prefix + "attached_user_policies"
     dump = True
     operator = "list_attached_user_policies"
     single_region = True
@@ -71,7 +75,7 @@ class list_attached_user_policies(base):
 
 
 class list_groups(base, aws._data_two_deep):
-    datatype = "aws.iam.groups"
+    datatype = datatype_prefix + "groups"
     dump = True
     operator = "list_groups"
     single_region = True
@@ -80,7 +84,7 @@ class list_groups(base, aws._data_two_deep):
 
 
 class list_groups_for_user(base):
-    datatype = "aws.iam.groups_for_user"
+    datatype = datatype_prefix + "groups_for_user"
     dump = True
     operator = "list_groups_for_user"
     single_region = True
@@ -110,7 +114,7 @@ class list_groups_for_user(base):
 
 
 class list_mfa_devices(base):
-    datatype = "aws.iam.mfa_devices"
+    datatype = datatype_prefix + "mfa_devices"
     dump = True
     operator = "list_mfa_devices"
     single_region = True
@@ -139,7 +143,7 @@ class list_mfa_devices(base):
 
 
 class list_instance_profiles(base, aws._data_two_deep):
-    datatype = "aws.iam.instance_profiles"
+    datatype = datatype_prefix + "instance_profiles"
     dump = True
     operator = "list_instance_profiles"
     single_region = True
@@ -148,7 +152,7 @@ class list_instance_profiles(base, aws._data_two_deep):
 
 
 class list_policies(base, aws._data_two_deep):
-    datatype = "aws.iam.policies"
+    datatype = datatype_prefix + "policies"
     dump = True
     operator = "list_policies"
     single_region = True
@@ -157,7 +161,7 @@ class list_policies(base, aws._data_two_deep):
 
 
 class list_roles(base, aws._data_two_deep):
-    datatype = "aws.iam.roles"
+    datatype = datatype_prefix + "roles"
     operator = "list_roles"
     single_region = True
     r1_key = "Roles"
@@ -165,7 +169,7 @@ class list_roles(base, aws._data_two_deep):
 
 
 class list_saml_providers(base, aws._data_two_deep):
-    datatype = "aws.iam.saml_providers"
+    datatype = datatype_prefix + "saml_providers"
     dump = True
     operator = "list_saml_providers"
     single_region = True
@@ -174,7 +178,7 @@ class list_saml_providers(base, aws._data_two_deep):
 
 
 class list_user_policies(base):
-    datatype = "aws.iam.user_policies"
+    datatype = datatype_prefix + "user_policies"
     dump = True
     operator = "list_user_policies"
     single_region = True
@@ -203,7 +207,7 @@ class list_user_policies(base):
 
 
 class list_users(base, aws._data_two_deep):
-    datatype = "aws.iam.users"
+    datatype = datatype_prefix + "users"
     # Note: dumping a single_region object may cause non idempotent regions
     dump = True
     operator = "list_users"
@@ -213,7 +217,7 @@ class list_users(base, aws._data_two_deep):
 
 
 class list_virtual_mfa_devices(base, aws._data_two_deep):
-    datatype = "aws.iam.virtual_mfa_devices"
+    datatype = datatype_prefix + "virtual_mfa_devices"
     dump = True
     operator = "list_virtual_mfa_devices"
     single_region = True

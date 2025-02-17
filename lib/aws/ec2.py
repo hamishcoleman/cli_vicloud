@@ -1,12 +1,16 @@
 import aws
 
 
+_service_name = "ec2"
+datatype_prefix = "aws." + _service_name + "."
+
+
 class base(aws.base):
-    service_name = "ec2"
+    service_name = _service_name
 
 
 class account_attributes(base):
-    datatype = "aws.ec2.account_attributes"
+    datatype = datatype_prefix + "account_attributes"
     dump = True
 
     def _fetch_one_client(self, client, args=None):
@@ -32,14 +36,14 @@ class account_attributes(base):
 class availability_zones(base, aws._data_two_deep):
     # TODO
     # This is different per region, but not per account, so can skip
-    datatype = "aws.ec2.availability_zones"
+    datatype = datatype_prefix + "availability_zones"
     operator = "describe_availability_zones"
     r1_key = "AvailabilityZones"
     r2_id = "ZoneId"
 
 
 class dhcp_options(base):
-    datatype = "aws.ec2.dhcp_options"
+    datatype = datatype_prefix + "dhcp_options"
     dump = True
 
     def _fetch_one_client(self, client, args=None):
@@ -71,35 +75,35 @@ class dhcp_options(base):
 
 
 class host_reservation_offerings(base, aws._data_two_deep):
-    datatype = "aws.ec2.host_reservation_offerings"
+    datatype = datatype_prefix + "host_reservation_offerings"
     operator = "describe_host_reservation_offerings"
     r1_key = "OfferingSet"
     r2_id = "OfferingId"
 
 
 class images(base, aws._data_two_deep):
-    datatype = "aws.ec2.images"
+    datatype = datatype_prefix + "images"
     operator = "describe_images"
     r1_key = "Images"
     r2_id = "ImageId"
 
 
 class instance_credit_specifications(base, aws._data_two_deep):
-    datatype = "aws.ec2.instance_credit_specifications"
+    datatype = datatype_prefix + "instance_credit_specifications"
     operator = "describe_instance_credit_specifications"
     r1_key = "InstanceCreditSpecifications"
     r2_id = "InstanceId"
 
 
 class instance_types(base, aws._data_two_deep):
-    datatype = "aws.ec2.instance_types"
+    datatype = datatype_prefix + "instance_types"
     operator = "describe_instance_types"
     r1_key = "InstanceTypes"
     r2_id = "InstanceType"
 
 
 class instances(base):
-    datatype = "aws.ec2.instances"
+    datatype = datatype_prefix + "instances"
     dump = True
 
     def _fetch_one_client(self, client, args=None):
@@ -121,7 +125,7 @@ class instances(base):
 
 
 class internet_gateways(base, aws._data_two_deep):
-    datatype = "aws.ec2.internet_gateways"
+    datatype = datatype_prefix + "internet_gateways"
     dump = True
     operator = "describe_internet_gateways"
     r1_key = "InternetGateways"
@@ -129,7 +133,7 @@ class internet_gateways(base, aws._data_two_deep):
 
 
 class key_pairs(base, aws._data_two_deep):
-    datatype = "aws.ec2.key_pairs"
+    datatype = datatype_prefix + "key_pairs"
     dump = True
     operator = "describe_key_pairs"
     r1_key = "KeyPairs"
@@ -138,7 +142,7 @@ class key_pairs(base, aws._data_two_deep):
 
 class launch_template_versions(base):
     """Fetch the most recent version of each template"""
-    datatype = "aws.ec2.launch_template_versions"
+    datatype = datatype_prefix + "launch_template_versions"
     dump = True
     operator = "describe_launch_template_versions"
     r1_key = "LaunchTemplateVersions"
@@ -158,7 +162,7 @@ class launch_template_versions(base):
 
 
 class launch_templates(base, aws._data_two_deep):
-    datatype = "aws.ec2.launch_templates"
+    datatype = datatype_prefix + "launch_templates"
     dump = True
     operator = "describe_launch_templates"
     r1_key = "LaunchTemplates"
@@ -166,7 +170,7 @@ class launch_templates(base, aws._data_two_deep):
 
 
 class managed_prefix_lists(base, aws._data_two_deep):
-    datatype = "aws.ec2.managed_prefix_lists"
+    datatype = datatype_prefix + "managed_prefix_lists"
     operator = "describe_managed_prefix_lists"
     r1_key = "PrefixLists"
     r2_id = "PrefixListId"
@@ -178,7 +182,7 @@ class managed_prefix_lists(base, aws._data_two_deep):
 
 
 class network_interfaces(base, aws._data_two_deep):
-    datatype = "aws.ec2.network_interfaces"
+    datatype = datatype_prefix + "network_interfaces"
     dump = True
     operator = "describe_network_interfaces"
     r1_key = "NetworkInterfaces"
@@ -186,14 +190,14 @@ class network_interfaces(base, aws._data_two_deep):
 
 
 class prefix_lists(base, aws._data_two_deep):
-    datatype = "aws.ec2.prefix_lists"
+    datatype = datatype_prefix + "prefix_lists"
     operator = "describe_prefix_lists"
     r1_key = "PrefixLists"
     r2_id = "PrefixListId"
 
 
 class regions(base, aws._data_two_deep):
-    datatype = "aws.ec2.regions"
+    datatype = datatype_prefix + "regions"
     operator = "describe_regions"
     single_region = True
     r1_key = "Regions"
@@ -201,7 +205,7 @@ class regions(base, aws._data_two_deep):
 
 
 class route_tables(base, aws._data_two_deep, aws._mutate_sortarray):
-    datatype = "aws.ec2.route_tables"
+    datatype = datatype_prefix + "route_tables"
     dump = True
     operator = "describe_route_tables"
     r1_key = "RouteTables"
@@ -212,7 +216,7 @@ class route_tables(base, aws._data_two_deep, aws._mutate_sortarray):
 
 
 class security_group_rules(base, aws._data_two_deep):
-    datatype = "aws.ec2.security_group_rules"
+    datatype = datatype_prefix + "security_group_rules"
     dump = True
     operator = "describe_security_group_rules"
     r1_key = "SecurityGroupRules"
@@ -220,14 +224,14 @@ class security_group_rules(base, aws._data_two_deep):
 
 
 class snapshots(base, aws._data_two_deep):
-    datatype = "aws.ec2.snapshots"
+    datatype = datatype_prefix + "snapshots"
     operator = "describe_snapshots"
     r1_key = "Snapshots"
     r2_id = "SnapshotId"
 
 
 class subnets(base, aws._data_two_deep):
-    datatype = "aws.ec2.subnets"
+    datatype = datatype_prefix + "subnets"
     dump = True
     operator = "describe_subnets"
     r1_key = "Subnets"
@@ -236,7 +240,7 @@ class subnets(base, aws._data_two_deep):
 
 class tags(base):
     """Edit ec2 tags"""
-    datatype = "aws.ec2.tags"
+    datatype = datatype_prefix + "tags"
     dump = True
 
     def _fetch_one_client(self, client, args=None):
@@ -274,7 +278,7 @@ class tags(base):
 
 
 class volume_status(base, aws._data_two_deep):
-    datatype = "aws.ec2.volume_status"
+    datatype = datatype_prefix + "volume_status"
     dump = True
     operator = "describe_volume_status"
     r1_key = "VolumeStatuses"
@@ -282,7 +286,7 @@ class volume_status(base, aws._data_two_deep):
 
 
 class volumes(base, aws._data_two_deep):
-    datatype = "aws.ec2.volumes"
+    datatype = datatype_prefix + "volumes"
     dump = True
     operator = "describe_volumes"
     r1_key = "Volumes"
@@ -295,7 +299,7 @@ class volumes(base, aws._data_two_deep):
 
 
 class vpc_endpoint_services(base, aws._data_two_deep):
-    datatype = "aws.ec2.vpc_endpoint_services"
+    datatype = datatype_prefix + "vpc_endpoint_services"
     operator = "describe_vpc_endpoint_services"
     r1_key = "ServiceDetails"
     r2_id = "ServiceId"
@@ -306,7 +310,7 @@ class vpc_endpoint_services(base, aws._data_two_deep):
 
 
 class vpcs(base, aws._data_two_deep):
-    datatype = "aws.ec2.vpcs"
+    datatype = datatype_prefix + "vpcs"
     dump = True
     operator = "describe_vpcs"
     r1_key = "Vpcs"

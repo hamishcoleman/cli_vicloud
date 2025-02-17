@@ -1,12 +1,16 @@
 import aws
 
 
+_service_name = "logs"
+datatype_prefix = "aws." + _service_name + "."
+
+
 class base(aws.base):
-    service_name = "logs"
+    service_name = _service_name
 
 
 class events(base):
-    datatype = "aws.logs.events"
+    datatype = datatype_prefix + "events"
     operator = "get_log_events"
     params = ['log_group_name', 'log_stream_name']
     r1_key = "events"
@@ -26,14 +30,14 @@ class events(base):
 
 
 class groups(base, aws._data_two_deep):
-    datatype = "aws.logs.groups"
+    datatype = datatype_prefix + "groups"
     operator = "describe_log_groups"
     r1_key = "logGroups"
     r2_id = "logGroupName"
 
 
 class streams(base):
-    datatype = "aws.logs.streams"
+    datatype = datatype_prefix + "streams"
     operator = "describe_log_streams"
     params = ['log_group_name']
     r1_key = "logStreams"

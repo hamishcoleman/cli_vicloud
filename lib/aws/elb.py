@@ -1,12 +1,16 @@
 import aws
 
 
+_service_name = "elbv2"
+datatype_prefix = "aws." + _service_name + "."
+
+
 class base(aws.base):
-    service_name = "elbv2"
+    service_name = _service_name
 
 
 class listeners(base):
-    datatype = "aws.elbv2.listeners"
+    datatype = datatype_prefix + "listeners"
     dump = True
 
     def _fetch_one_client(self, client, args=None):
@@ -36,7 +40,7 @@ class listeners(base):
 
 
 class load_balancers(base, aws._data_two_deep):
-    datatype = "aws.elbv2.load_balancers"
+    datatype = datatype_prefix + "load_balancers"
     dump = True
     operator = "describe_load_balancers"
     r1_key = "LoadBalancers"
@@ -44,7 +48,7 @@ class load_balancers(base, aws._data_two_deep):
 
 
 class rules(base):
-    datatype = "aws.elbv2.rules"
+    datatype = datatype_prefix + "rules"
     dump = True
 
     def _fetch_one_client(self, client, args=None):
@@ -74,7 +78,7 @@ class rules(base):
 
 
 class target_groups(base, aws._data_two_deep):
-    datatype = "aws.elbv2.target_groups"
+    datatype = datatype_prefix + "target_groups"
     dump = True
     operator = "describe_target_groups"
     r1_key = "TargetGroups"
