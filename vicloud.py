@@ -34,6 +34,7 @@ import aws.ec2  # noqa
 import aws.eks  # noqa
 import aws.elb  # noqa
 import aws.iam  # noqa
+import aws.logs  # noqa
 import definitionset   # noqa
 
 
@@ -340,6 +341,7 @@ def main():
     argparser_populate_subc("eks", aws.eks, "aws.eks.")
     argparser_populate_subc("elb", aws.elb, "aws.elbv2.")
     argparser_populate_subc("iam", aws.iam, "aws.iam.")
+    argparser_populate_subc("logs", aws.logs, "aws.logs.")
     args = argparser()
 
     if not args.command:
