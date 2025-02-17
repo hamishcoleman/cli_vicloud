@@ -161,6 +161,7 @@ def process_data(args, data):
 
 
 class dumper:
+    """Dump all the dumpable items from all the modules"""
     # Avoid dumping the dumper ..
     dump = False
 
@@ -199,18 +200,6 @@ subc_list = {
     "dump": {
         "handler": dumper,
     },
-    "ec2": {
-        "help": "Virtual machines (Elastic Compute Cloud)",
-    },
-    "eks": {
-        "help": "Elastic K8s Service",
-    },
-    "elb": {
-        "help": "Elastic Load Balancer",
-    },
-    "iam": {
-        "help": "Users and Perms (IAM)",
-    },
 }
 
 
@@ -220,6 +209,9 @@ def argparser_populate_subc(l1name, module, prefix=None):
     subc = subc_list.setdefault(l1name, {})
     if "subc" not in subc:
         subc["subc"] = {}
+
+    if "help" not in subc:
+        subc["help"] = module.__doc__
 
     if prefix is None:
         prefix = module.datatype_prefix

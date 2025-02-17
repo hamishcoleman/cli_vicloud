@@ -1,3 +1,4 @@
+"""Elastic K8s Service"""
 import aws
 
 

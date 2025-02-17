@@ -1,3 +1,4 @@
+"""Virtual machines (Elastic Compute Cloud)"""
 import aws
 
 
