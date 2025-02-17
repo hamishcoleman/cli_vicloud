@@ -34,8 +34,9 @@ import aws.ec2  # noqa
 import aws.eks  # noqa
 import aws.elb  # noqa
 import aws.iam  # noqa
-import aws.logs  # noqa
-import definitionset   # noqa
+import aws.logs         # noqa
+import aws.route53      # noqa
+import definitionset    # noqa
 
 
 def output_data_csv(data, file):
@@ -343,6 +344,7 @@ def main():
     argparser_populate_subc("elb", aws.elb)
     argparser_populate_subc("iam", aws.iam)
     argparser_populate_subc("logs", aws.logs)
+    argparser_populate_subc("route53", aws.route53)
     args = argparser()
 
     if not args.command:
