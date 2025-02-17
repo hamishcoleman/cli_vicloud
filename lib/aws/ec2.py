@@ -9,7 +9,7 @@ class account_attributes(base):
     datatype = "aws.ec2.account_attributes"
     dump = True
 
-    def _fetch_one_client(self, client):
+    def _fetch_one_client(self, client, args=None):
         data = {}
         operator = "describe_account_attributes"
         r1_key = "AccountAttributes"
@@ -42,7 +42,7 @@ class dhcp_options(base):
     datatype = "aws.ec2.dhcp_options"
     dump = True
 
-    def _fetch_one_client(self, client):
+    def _fetch_one_client(self, client, args=None):
         data = {}
         operator = "describe_dhcp_options"
         r1_key = "DhcpOptions"
@@ -102,7 +102,7 @@ class instances(base):
     datatype = "aws.ec2.instances"
     dump = True
 
-    def _fetch_one_client(self, client):
+    def _fetch_one_client(self, client, args=None):
         data = {}
         operator = "describe_instances"
         r1_key = "Reservations"
@@ -144,7 +144,7 @@ class launch_template_versions(base):
     r1_key = "LaunchTemplateVersions"
     r2_id = "LaunchTemplateId"
 
-    def _fetch_one_client(self, client):
+    def _fetch_one_client(self, client, args=None):
         data = {}
 
         self._log_fetch_op(client, self.operator)
@@ -239,7 +239,7 @@ class tags(base):
     datatype = "aws.ec2.tags"
     dump = True
 
-    def _fetch_one_client(self, client):
+    def _fetch_one_client(self, client, args=None):
         data = {}
         operator = "describe_tags"
         r1_key = "Tags"

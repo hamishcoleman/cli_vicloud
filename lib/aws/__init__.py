@@ -86,7 +86,7 @@ class base:
             # stash our name inside their client object
             client._profile_name = profile_name
 
-            specifics = self._fetch_one_client(client)
+            specifics = self._fetch_one_client(client, args=args)
             if not specifics:
                 continue
 
@@ -101,7 +101,7 @@ class base:
         """Optionally mutate data before storing it"""
         return
 
-    def _fetch_one_client(self, client):
+    def _fetch_one_client(self, client, args=None):
         raise NotImplementedError
 
     def apply(self, data):
@@ -136,7 +136,7 @@ class base:
 
 class _data_two_deep(base):
     """Generic parser for simple structure with two layers"""
-    def _fetch_one_client(self, client):
+    def _fetch_one_client(self, client, args=None):
         data = {}
 
         self._log_fetch_op(client, self.operator)

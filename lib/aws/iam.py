@@ -13,7 +13,7 @@ class list_access_keys(base):
     r1_key = "AccessKeyMetadata"
     r3_id = "AccessKeyId"
 
-    def _fetch_one_client(self, client):
+    def _fetch_one_client(self, client, args=None):
         # first, get the list of users
         handler = list_users()
         handler.verbose = self.verbose
@@ -47,7 +47,7 @@ class list_attached_user_policies(base):
     single_region = True
     r1_key = "AttachedPolicies"
 
-    def _fetch_one_client(self, client):
+    def _fetch_one_client(self, client, args=None):
         # first, get the list of users
         handler = list_users()
         handler.verbose = self.verbose
@@ -86,7 +86,7 @@ class list_groups_for_user(base):
     single_region = True
     r1_key = "Groups"
 
-    def _fetch_one_client(self, client):
+    def _fetch_one_client(self, client, args=None):
         # first, get the list of users
         handler = list_users()
         handler.verbose = self.verbose
@@ -116,7 +116,7 @@ class list_mfa_devices(base):
     single_region = True
     r1_key = "MFADevices"
 
-    def _fetch_one_client(self, client):
+    def _fetch_one_client(self, client, args=None):
         # first, get the list of users
         handler = list_users()
         handler.verbose = self.verbose
@@ -180,7 +180,7 @@ class list_user_policies(base):
     single_region = True
     r1_key = "PolicyNames"
 
-    def _fetch_one_client(self, client):
+    def _fetch_one_client(self, client, args=None):
         # first, get the list of users
         handler = list_users()
         handler.verbose = self.verbose

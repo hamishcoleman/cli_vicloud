@@ -8,7 +8,7 @@ class base(aws.base):
 class _cluster_foreach(base):
     cluster_param_name = "clusterName"
 
-    def _fetch_one_client(self, client):
+    def _fetch_one_client(self, client, args=None):
         # first, get the list of clusters
         handler = list_clusters()
         handler.verbose = self.verbose
@@ -34,7 +34,7 @@ class access_entries(base):
     r1_key = "accessEntry"
     r2_id = "accessEntryArn"
 
-    def _fetch_one_client(self, client):
+    def _fetch_one_client(self, client, args=None):
         # first, get the list of clusters
         handler = list_clusters()
         handler.verbose = self.verbose
@@ -67,7 +67,7 @@ class addon(base):
     r1_key = "addon"
     r2_id = "addonName"
 
-    def _fetch_one_client(self, client):
+    def _fetch_one_client(self, client, args=None):
         # first, get the list of clusters
         handler = list_clusters()
         handler.verbose = self.verbose
@@ -130,7 +130,7 @@ class nodegroup(base):
     r1_key = "nodegroup"
     r2_id = "nodegroupName"
 
-    def _fetch_one_client(self, client):
+    def _fetch_one_client(self, client, args=None):
         # first, get the list of clusters
         handler = list_clusters()
         handler.verbose = self.verbose
@@ -169,7 +169,7 @@ class pod_identity_association(base):
     r1_key = "association"
     r2_id = "associationId"
 
-    def _fetch_one_client(self, client):
+    def _fetch_one_client(self, client, args=None):
         # first, get the list of clusters
         handler = list_clusters()
         handler.verbose = self.verbose
@@ -209,7 +209,7 @@ class list_clusters(base):
     operator = "list_clusters"
     r1_key = "clusters"
 
-    def _fetch_one_client(self, client):
+    def _fetch_one_client(self, client, args=None):
         data = {}
 
         self._log_fetch_op(client, self.operator)

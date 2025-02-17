@@ -256,7 +256,12 @@ def argparser_subc(argp, subc_list):
         cmd = subp.add_parser(name, help=help)
 
         if "handler" in data:
-            cmd.set_defaults(handler=data["handler"])
+            handler = data["handler"]
+            cmd.set_defaults(handler=handler)
+
+            if hasattr(handler, "params"):
+                for param in getattr(handler, "params", []):
+                    cmd.add_argument(param)
 
         if "subc" in data:
             argparser_subc(cmd, data["subc"])

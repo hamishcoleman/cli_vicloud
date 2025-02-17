@@ -9,7 +9,7 @@ class listeners(base):
     datatype = "aws.elbv2.listeners"
     dump = True
 
-    def _fetch_one_client(self, client):
+    def _fetch_one_client(self, client, args=None):
         # first, get the list of load_balancers
         handler = load_balancers()
         handler.verbose = self.verbose
@@ -47,7 +47,7 @@ class rules(base):
     datatype = "aws.elbv2.rules"
     dump = True
 
-    def _fetch_one_client(self, client):
+    def _fetch_one_client(self, client, args=None):
         # first, get the list of listeners
         handler = listeners()
         handler.verbose = self.verbose
