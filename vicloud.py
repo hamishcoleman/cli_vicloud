@@ -198,8 +198,6 @@ subc_list = {
     "dump": {
         "handler": dumper,
     },
-    "autoscaling": {
-    },
     "ec2": {
         "help": "Virtual machines (Elastic Compute Cloud)",
     },
@@ -215,7 +213,8 @@ subc_list = {
 }
 
 
-def argparser_populate_subc(subc, module, prefix):
+def argparser_populate_subc(l1name, module, prefix):
+    subc = subc_list.setdefault(l1name, {})
     if "subc" not in subc:
         subc["subc"] = {}
 
@@ -336,15 +335,11 @@ def argparser():
 
 
 def main():
-    argparser_populate_subc(
-        subc_list["autoscaling"],
-        aws.autoscaling,
-        "aws.autoscaling."
-    )
-    argparser_populate_subc(subc_list["ec2"], aws.ec2, "aws.ec2.")
-    argparser_populate_subc(subc_list["eks"], aws.eks, "aws.eks.")
-    argparser_populate_subc(subc_list["elb"], aws.elb, "aws.elbv2.")
-    argparser_populate_subc(subc_list["iam"], aws.iam, "aws.iam.")
+    argparser_populate_subc("autoscaling", aws.autoscaling, "aws.autoscaling.")
+    argparser_populate_subc("ec2", aws.ec2, "aws.ec2.")
+    argparser_populate_subc("eks", aws.eks, "aws.eks.")
+    argparser_populate_subc("elb", aws.elb, "aws.elbv2.")
+    argparser_populate_subc("iam", aws.iam, "aws.iam.")
     args = argparser()
 
     if not args.command:
