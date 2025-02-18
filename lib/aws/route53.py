@@ -16,6 +16,7 @@ class hosted_zones(base, aws._data_two_deep):
     operator = "list_hosted_zones"
     r1_key = "HostedZones"
     r2_id = "Name"
+    single_region = True
 
 
 class resource_record_sets(base):
@@ -23,6 +24,7 @@ class resource_record_sets(base):
     dump = True
     operator = "list_resource_record_sets"
     r1_key = "ResourceRecordSets"
+    single_region = True
 
     def _fetch_one_client(self, client, args=None):
         # first, get the list of clusters
