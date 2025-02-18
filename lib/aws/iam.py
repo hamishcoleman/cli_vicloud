@@ -2,7 +2,7 @@
 import aws
 
 
-_service_name = "elbv2"
+_service_name = "iam"
 datatype_prefix = "aws." + _service_name + "."
 
 
