@@ -32,6 +32,7 @@ def setup_sessions(verbose, profiles, regions):
 
         for region in this_regions:
             this = {
+                "profile": profile,
                 "region": region,
                 "session": session,
             }
@@ -86,7 +87,13 @@ class base:
             # stash our name inside their client object
             client._profile_name = profile_name
 
-            specifics = self._fetch_one_client(client, args=args)
+            try:
+                specifics = self._fetch_one_client(client, args=args)
+            except:
+                # TODO: bubble this condition up, mark that profile as
+                # possibly skippable
+                specifics = None
+
             if not specifics:
                 continue
 
