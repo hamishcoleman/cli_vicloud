@@ -191,6 +191,27 @@ class network_interfaces(base, aws._data_two_deep):
     r1_key = "NetworkInterfaces"
     r2_id = "NetworkInterfaceId"
 
+    def _mutate(self, data):
+        """Remove AWS ELB interfaces from those we are interested in"""
+        # These interfaces change on an almost daily basis, and are completely
+        # managed by Amazon, so provide no value when trawling the deployed
+        # data
+
+        # Chain to any other mutators
+        super()._mutate(data)
+
+        del_list = set()
+        for _id, item in data.items():
+            if not item["RequesterManaged"]:
+                continue
+            if item["RequesterId"] != "amazon-elb":
+                continue
+
+            del_list.add(_id)
+
+        for _id in del_list:
+            del data[_id]
+
 
 class prefix_lists(base, aws._data_two_deep):
     datatype = datatype_prefix + "prefix_lists"

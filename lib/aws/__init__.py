@@ -160,6 +160,8 @@ class _mutate_sortarray(base):
     """Apply any array order stabilisation steps"""
 
     def _mutate(self, data):
+        # Chain to any other mutators
+        super()._mutate(data)
 
         def do_sort(array, orderby):
             def _key(item):
