@@ -106,6 +106,8 @@ class instance_types(base, aws._data_two_deep):
 class instances(base):
     datatype = datatype_prefix + "instances"
     dump = True
+    # TODO:
+    # need to sort the Tags table
 
     def _fetch_one_client(self, client, args=None):
         data = {}

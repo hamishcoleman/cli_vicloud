@@ -321,6 +321,10 @@ def argparser():
 
     r = args.parse_args()
 
+    # TODO:
+    # if not r.command:
+    #   show the test that --help gives at that level of the subc tree
+
     if r.quiet:
         r.verbose = 0
 
