@@ -125,14 +125,15 @@ class base:
             token = None
             paginator = client.get_paginator(operation)
 
-            kwargs.update({
+            param = {
                 "PaginationConfig": {
                     "PageSize": 50,
                     "StartingToken": token,
                 }
-            })
+            }
+            param.update(kwargs)
 
-            response = paginator.paginate(**kwargs)
+            response = paginator.paginate(**param)
 
             for page in response:
                 # TODO
