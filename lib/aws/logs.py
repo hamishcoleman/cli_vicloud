@@ -21,7 +21,12 @@ class events(base):
         self._log_fetch_op(client, self.operator)
 
         _id = 0
-        for r1 in self._paged_op(client, self.operator, logGroupName=args.log_group_name, logStreamName=args.log_stream_name):
+        for r1 in self._paged_op(
+                client,
+                self.operator,
+                logGroupName=args.log_group_name,
+                logStreamName=args.log_stream_name
+        ):
             for r2 in r1[self.r1_key]:
                 data[_id] = r2
                 _id += 1
@@ -48,7 +53,11 @@ class streams(base):
 
         self._log_fetch_op(client, self.operator)
 
-        for r1 in self._paged_op(client, self.operator, logGroupName=args.log_group_name):
+        for r1 in self._paged_op(
+                client,
+                self.operator,
+                logGroupName=args.log_group_name
+        ):
             for r2 in r1[self.r1_key]:
                 _id = r2[self.r2_id]
                 data[_id] = r2

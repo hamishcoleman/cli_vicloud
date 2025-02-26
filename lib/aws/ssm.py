@@ -41,5 +41,3 @@ class parameters(base):
                 _id += 1
 
         return data
-
-
