@@ -8,9 +8,8 @@ class Definition:
     """Encapsulate the data needed to describe the remote object"""
     def __init__(self):
         # Set defaults for the metadata
+        self.datasource = None
         self.datatype = None
-        self.region = None
-        self.session = None
 
         # Initialise with empty data
         self.data = None
@@ -22,8 +21,7 @@ class Definition:
         """Return the field names of both metadata and data"""
         d = set()
         d.add("@DataType")
-        d.add("@Profile")
-        d.add("@Region")
+        d.add("@MetaData")
         d.add("@ResourceId")
 
         for _id, row in self.data.items():
@@ -37,8 +35,7 @@ class Definition:
         for _id, row in self.data.items():
             this = {}
             this["@DataType"] = self.datatype
-            this["@Profile"] = self.session.profile_name
-            this["@Region"] = self.region
+            this["@MetaData"] = self.datasource.metadata()
             this["@ResourceId"] = _id
             this.update(row)
             yield this
@@ -49,13 +46,10 @@ class Definition:
         for _id, row in self.data.items():
             this = {
                 "datatype": self.datatype,
-                "metadata": {
-                    "profile": self.session.profile_name,
-                    "region": self.region,
-                    "resourceid": _id,
-                },
+                "metadata": self.datasource.metadata(),
                 "specifics": row,
             }
+            this["metadata"]["resourceid"] = _id
             yield this
 
 

@@ -2,6 +2,21 @@ import boto3
 import botocore
 import definitionset
 import sys
+import vicloud
+
+
+class DataSource(vicloud.DataSource):
+    def __init__(self, profile, region):
+        self.datatype_prefix = "aws."
+        self.profile = profile
+        self.region = region
+        self.session = None
+
+    def metadata(self):
+        return {
+            "profile": self.profile,
+            "region": self.region,
+        }
 
 
 def setup_sessions(verbose, profiles, regions):
@@ -75,12 +90,14 @@ class base:
                     continue
             profiles_done[profile_name] = True
 
-            resultset = definitionset.Definition()
-            resultset.datatype = self.datatype
-            resultset.region = region_name
-            resultset.session = session["session"]
+            datasource = DataSource(profile_name, region_name)
+            datasource.session = session["session"]
 
-            client = resultset.session.client(
+            resultset = definitionset.Definition()
+            resultset.datasource = datasource
+            resultset.datatype = self.datatype
+
+            client = resultset.datasource.session.client(
                 self.service_name,
                 region_name=session["region"],
             )
