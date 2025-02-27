@@ -27,6 +27,7 @@ class resource_record_sets(base):
     single_region = True
 
     def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
         # first, get the list of clusters
         handler = hosted_zones()
         handler.verbose = self.verbose
@@ -38,7 +39,7 @@ class resource_record_sets(base):
                 "HostedZoneId": zone["Id"],
             }
 
-            self._log_fetch_op(client, self.operator)
+            self.log_operator(datasource, self.operator)
             for r1 in self._paged_op(client, self.operator, **kwargs):
                 for record in r1[self.r1_key]:
                     # TODO:

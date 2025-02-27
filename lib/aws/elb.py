@@ -15,6 +15,7 @@ class listeners(base):
     dump = True
 
     def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
         # first, get the list of load_balancers
         handler = load_balancers()
         handler.verbose = self.verbose
@@ -28,7 +29,7 @@ class listeners(base):
         r1_key = "Listeners"
         r2_id = "ListenerArn"
 
-        self._log_fetch_op(client, operator)
+        self.log_operator(datasource, self.operator)
 
         data = {}
         for arn in arns:
@@ -53,6 +54,7 @@ class rules(base):
     dump = True
 
     def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
         # first, get the list of listeners
         handler = listeners()
         handler.verbose = self.verbose
@@ -66,7 +68,7 @@ class rules(base):
         r1_key = "Rules"
         r2_id = "RuleArn"
 
-        self._log_fetch_op(client, operator)
+        self.log_operator(datasource, self.operator)
 
         data = {}
         for arn in arns:

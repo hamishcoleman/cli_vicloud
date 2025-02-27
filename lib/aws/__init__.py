@@ -113,18 +113,6 @@ class base:
                 file=sys.stderr
             )
 
-    def _log_fetch_op(self, client, operation):
-        # Note we are abusing the client object with ou profile name storage
-        profile_name = client._profile_name
-        region = client._client_config.region_name
-        service_name = self.service_name
-
-        if self.verbose:
-            print(
-                f"{profile_name}:{region}:{service_name} fetch {operation}",
-                file=sys.stderr
-            )
-
     def fetch(self, args, sessions):
         db = definitionset.DefinitionSet()
         profiles_done = {}
@@ -149,9 +137,6 @@ class base:
             resultset.datatype = self.datatype
 
             client = datasource.client(self.service_name)
-
-            # stash our name inside their client object for _log_fetch_op
-            client._profile_name = profile_name
 
             # stash our datasource to simplify the transition period
             client._datasource = datasource

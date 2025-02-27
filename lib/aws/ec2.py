@@ -15,11 +15,12 @@ class account_attributes(base):
     dump = True
 
     def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
         data = {}
         operator = "describe_account_attributes"
         r1_key = "AccountAttributes"
 
-        self._log_fetch_op(client, operator)
+        self.log_operator(datasource, self.operator)
 
         for r1 in self._paged_op(client, operator):
             for r2 in r1[r1_key]:
@@ -48,12 +49,13 @@ class dhcp_options(base):
     dump = True
 
     def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
         data = {}
         operator = "describe_dhcp_options"
         r1_key = "DhcpOptions"
         r2_id = "DhcpOptionsId"
 
-        self._log_fetch_op(client, operator)
+        self.log_operator(datasource, self.operator)
 
         for r1 in self._paged_op(client, operator):
             for r2 in r1[r1_key]:
@@ -110,13 +112,14 @@ class instances(base):
     # need to sort the Tags table
 
     def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
         data = {}
         operator = "describe_instances"
         r1_key = "Reservations"
         r2_key = "Instances"
         r3_id = "InstanceId"
 
-        self._log_fetch_op(client, operator)
+        self.log_operator(datasource, self.operator)
 
         for r1 in self._paged_op(client, operator):
             for r2 in r1[r1_key]:
@@ -152,9 +155,10 @@ class launch_template_versions(base):
     r2_id = "LaunchTemplateId"
 
     def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
         data = {}
 
-        self._log_fetch_op(client, self.operator)
+        self.log_operator(datasource, self.operator)
 
         for r1 in self._paged_op(client, self.operator, Versions=["$Latest"]):
             for r2 in r1[self.r1_key]:
@@ -268,12 +272,13 @@ class tags(base):
     dump = True
 
     def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
         data = {}
         operator = "describe_tags"
         r1_key = "Tags"
         r2_id = "ResourceId"
 
-        self._log_fetch_op(client, operator)
+        self.log_operator(datasource, self.operator)
 
         for r1 in self._paged_op(client, operator):
             for r2 in r1[r1_key]:

@@ -16,9 +16,10 @@ class events(base):
     r1_key = "events"
 
     def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
         data = {}
 
-        self._log_fetch_op(client, self.operator)
+        self.log_operator(datasource, self.operator)
 
         _id = 0
         for r1 in self._paged_op(
@@ -49,9 +50,10 @@ class streams(base):
     r2_id = "logStreamName"
 
     def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
         data = {}
 
-        self._log_fetch_op(client, self.operator)
+        self.log_operator(datasource, self.operator)
 
         for r1 in self._paged_op(
                 client,

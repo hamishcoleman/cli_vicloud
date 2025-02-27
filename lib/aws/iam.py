@@ -19,6 +19,7 @@ class list_access_keys(base):
     r3_id = "AccessKeyId"
 
     def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
         # first, get the list of users
         handler = list_users()
         handler.verbose = self.verbose
@@ -26,7 +27,7 @@ class list_access_keys(base):
 
         data = {}
         for _id, user in users.items():
-            self._log_fetch_op(client, self.operator)
+            self.log_operator(datasource, self.operator)
 
             kwargs = {
                 "UserName": user["UserName"],
@@ -53,6 +54,7 @@ class list_attached_user_policies(base):
     r1_key = "AttachedPolicies"
 
     def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
         # first, get the list of users
         handler = list_users()
         handler.verbose = self.verbose
@@ -60,7 +62,7 @@ class list_attached_user_policies(base):
 
         data = {}
         for _id, user in users.items():
-            self._log_fetch_op(client, self.operator)
+            self.log_operator(datasource, self.operator)
 
             username = user["UserName"]
             kwargs = {
@@ -92,6 +94,7 @@ class list_groups_for_user(base):
     r1_key = "Groups"
 
     def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
         # first, get the list of users
         handler = list_users()
         handler.verbose = self.verbose
@@ -99,7 +102,7 @@ class list_groups_for_user(base):
 
         data = {}
         for _id, user in users.items():
-            self._log_fetch_op(client, self.operator)
+            self.log_operator(datasource, self.operator)
 
             username = user["UserName"]
             kwargs = {
@@ -122,6 +125,7 @@ class list_mfa_devices(base):
     r1_key = "MFADevices"
 
     def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
         # first, get the list of users
         handler = list_users()
         handler.verbose = self.verbose
@@ -129,7 +133,7 @@ class list_mfa_devices(base):
 
         data = {}
         for _id, user in users.items():
-            self._log_fetch_op(client, self.operator)
+            self.log_operator(datasource, self.operator)
 
             username = user["UserName"]
             kwargs = {
@@ -186,6 +190,7 @@ class list_user_policies(base):
     r1_key = "PolicyNames"
 
     def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
         # first, get the list of users
         handler = list_users()
         handler.verbose = self.verbose
@@ -193,7 +198,7 @@ class list_user_policies(base):
 
         data = {}
         for _id, user in users.items():
-            self._log_fetch_op(client, self.operator)
+            self.log_operator(datasource, self.operator)
 
             username = user["UserName"]
             kwargs = {

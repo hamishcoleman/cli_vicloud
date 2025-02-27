@@ -14,12 +14,13 @@ class _cluster_foreach(base):
     cluster_param_name = "clusterName"
 
     def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
         # first, get the list of clusters
         handler = list_clusters()
         handler.verbose = self.verbose
         names = handler._fetch_one_client(client)
 
-        self._log_fetch_op(client, self.operator)
+        self.log_operator(datasource, self.operator)
 
         data = {}
         for name in names.keys():
@@ -40,6 +41,7 @@ class access_entries(base):
     r2_id = "accessEntryArn"
 
     def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
         # first, get the list of clusters
         handler = list_clusters()
         handler.verbose = self.verbose
@@ -51,7 +53,7 @@ class access_entries(base):
             handler.verbose = self.verbose
             access_entries = handler._fetch_one_client(client)
 
-            self._log_fetch_op(client, self.operator)
+            self.log_operator(datasource, self.operator)
 
             for access in access_entries[cluster]:
                 kwargs = {
@@ -73,6 +75,7 @@ class addon(base):
     r2_id = "addonName"
 
     def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
         # first, get the list of clusters
         handler = list_clusters()
         handler.verbose = self.verbose
@@ -84,7 +87,7 @@ class addon(base):
             handler.verbose = self.verbose
             addons = handler._fetch_one_client(client)
 
-            self._log_fetch_op(client, self.operator)
+            self.log_operator(datasource, self.operator)
 
             for addon in addons[cluster]:
                 kwargs = {
@@ -136,6 +139,7 @@ class nodegroup(base):
     r2_id = "nodegroupName"
 
     def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
         # first, get the list of clusters
         handler = list_clusters()
         handler.verbose = self.verbose
@@ -147,7 +151,7 @@ class nodegroup(base):
             handler.verbose = self.verbose
             nodegroups = handler._fetch_one_client(client)
 
-            self._log_fetch_op(client, self.operator)
+            self.log_operator(datasource, self.operator)
 
             for nodegroup in nodegroups[cluster]:
                 kwargs = {
@@ -175,6 +179,7 @@ class pod_identity_association(base):
     r2_id = "associationId"
 
     def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
         # first, get the list of clusters
         handler = list_clusters()
         handler.verbose = self.verbose
@@ -186,7 +191,7 @@ class pod_identity_association(base):
             handler.verbose = self.verbose
             pods = handler._fetch_one_client(client)
 
-            self._log_fetch_op(client, self.operator)
+            self.log_operator(datasource, self.operator)
 
             for pod in pods[cluster]:
                 kwargs = {
@@ -215,9 +220,10 @@ class list_clusters(base):
     r1_key = "clusters"
 
     def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
         data = {}
 
-        self._log_fetch_op(client, self.operator)
+        self.log_operator(datasource, self.operator)
 
         for r1 in self._paged_op(client, self.operator):
             for r2 in r1[self.r1_key]:

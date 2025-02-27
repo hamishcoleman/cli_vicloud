@@ -16,13 +16,14 @@ class parameters(base):
     r1_key = "Parameters"
 
     def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
         data = {}
 
         # Default to listing the list of params
         if args.path is None:
             args.path = "/aws/service/list"
 
-        self._log_fetch_op(client, self.operator)
+        self.log_operator(datasource, self.operator)
 
         param = {
             "PaginationConfig": {
