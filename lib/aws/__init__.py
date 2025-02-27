@@ -10,13 +10,17 @@ class DataSource(vicloud.DataSource):
         self.datatype_prefix = "aws."
         self.profile = profile
         self.region = region
+        self.single_region = False
         self._session = None
 
     def metadata(self):
-        return {
+        meta = {
             "profile": self.profile,
             "region": self.region,
         }
+        if self.single_region:
+            meta["single_region"] = True
+        return meta
 
     @property
     def session(self):
@@ -25,9 +29,16 @@ class DataSource(vicloud.DataSource):
         return self._session
 
     def client(self, service_name):
+        region = self.region
+        if region == "__SINGLE_REGION":
+            # TODO: is there a region name string that AWS uses for this?
+            # A random region, chosen by a fair roll of the dice
+            region = "ap-southeast-2"
+            self.single_region = True
+
         return self.session.client(
             service_name,
-            region_name=self.region,
+            region_name=region,
         )
 
     def operation(self, service_name, operation, **kwargs):
