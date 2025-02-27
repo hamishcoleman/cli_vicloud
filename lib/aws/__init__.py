@@ -10,13 +10,25 @@ class DataSource(vicloud.DataSource):
         self.datatype_prefix = "aws."
         self.profile = profile
         self.region = region
-        self.session = None
+        self._session = None
 
     def metadata(self):
         return {
             "profile": self.profile,
             "region": self.region,
         }
+
+    @property
+    def session(self):
+        if self._session is None:
+            self._session = boto3.Session(profile_name=self.profile)
+        return self._session
+
+    def client(self, service_name):
+        return self.session.client(
+            service_name,
+            region_name=self.region,
+        )
 
 
 def setup_sessions(verbose, profiles, regions):
@@ -83,6 +95,8 @@ class base:
             region_name = session["region"]
 
             if self.single_region:
+                # If this is a global resource, override the region name
+                # TODO: is there a region name string that AWS uses for this?
                 region_name = "__SINGLE_REGION"
 
                 if profile_name in profiles_done:
@@ -91,17 +105,13 @@ class base:
             profiles_done[profile_name] = True
 
             datasource = DataSource(profile_name, region_name)
-            datasource.session = session["session"]
 
             resultset = definitionset.Definition()
             resultset.datasource = datasource
             resultset.datatype = self.datatype
 
-            client = resultset.datasource.session.client(
-                self.service_name,
-                region_name=session["region"],
-            )
-            # stash our name inside their client object
+            client = datasource.client(self.service_name)
+            # stash our name inside their client object for _log_fetch_op
             client._profile_name = profile_name
 
             try:
