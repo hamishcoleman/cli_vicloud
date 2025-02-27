@@ -30,6 +30,33 @@ class DataSource(vicloud.DataSource):
             region_name=self.region,
         )
 
+    def operation(self, service_name, operation, **kwargs):
+        """Wrap possible pagination in a helper"""
+        client = self.client(service_name)
+
+        if not client.can_paginate(operation):
+            operator = getattr(client, operation)
+            yield operator(**kwargs)
+        else:
+            token = None
+            paginator = client.get_paginator(operation)
+
+            param = {
+                "PaginationConfig": {
+                    "PageSize": 50,
+                    "StartingToken": token,
+                }
+            }
+            param.update(kwargs)
+
+            response = paginator.paginate(**param)
+
+            for page in response:
+                # TODO
+                # if not quiet and enough tags since last print
+                #   print stderr fetching ...
+                yield page
+
 
 def setup_sessions(verbose, profiles, regions):
     sessions = []
@@ -75,6 +102,17 @@ class base:
     def __init__(self):
         self.verbose = 0
 
+    def log_operator(self, datasource, operation):
+        profile = datasource.profile
+        region = datasource.region
+        service_name = self.service_name
+
+        if self.verbose:
+            print(
+                f"{profile}:{region}:{service_name} fetch {operation}",
+                file=sys.stderr
+            )
+
     def _log_fetch_op(self, client, operation):
         # Note we are abusing the client object with ou profile name storage
         profile_name = client._profile_name
@@ -111,8 +149,12 @@ class base:
             resultset.datatype = self.datatype
 
             client = datasource.client(self.service_name)
+
             # stash our name inside their client object for _log_fetch_op
             client._profile_name = profile_name
+
+            # stash our datasource to simplify the transition period
+            client._datasource = datasource
 
             try:
                 specifics = self._fetch_one_client(client, args=args)
@@ -172,11 +214,12 @@ class base:
 class _data_two_deep(base):
     """Generic parser for simple structure with two layers"""
     def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
         data = {}
 
-        self._log_fetch_op(client, self.operator)
+        self.log_operator(datasource, self.operator)
 
-        for r1 in self._paged_op(client, self.operator):
+        for r1 in datasource.operation(self.service_name, self.operator):
             for r2 in r1[self.r1_key]:
                 _id = r2[self.r2_id]
                 data[_id] = r2
