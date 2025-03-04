@@ -239,3 +239,31 @@ class _mutate_sortarray(base):
         for _id, item in data.items():
             for keyname, orderby in self.sortarray.items():
                 item[keyname] = do_sort(item[keyname], orderby)
+
+class _mutate_sortTagsarray(base):
+    """Apply stabilise the order of the Tags array"""
+
+    def _mutate(self, data):
+        # Chain to any other mutators
+        super()._mutate(data)
+
+        for _id, item in data.items():
+            if "Tags" not in item:
+                continue
+
+            tags = {}
+            for tag in item["Tags"]:
+                k = tag["Key"]
+                v = tag["Value"]
+                tags[k] = v
+
+            tagarray = []
+            for k in sorted(tags.keys()):
+                v = tags[k]
+                tag = {
+                    "Key": k,
+                    "Value": v,
+                }
+                tagarray.append(tag)
+
+            item["Tags"] = tagarray
