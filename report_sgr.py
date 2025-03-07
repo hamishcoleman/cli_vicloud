@@ -72,11 +72,23 @@ def main():
     for rule in rules.values():
         group = groups.setdefault(rule["GroupId"], [])
 
+        # Make the ports human readable
+        _from = rule['FromPort']
+        _to = rule['ToPort']
+        if _from == _to:
+            ports = _from
+        else:
+            ports = f"{_from}-{_to}"
+        rule["PortRange"] = ports
+
         # Clean up data we dont need to see at the moment
         del rule["GroupId"]
         del rule["GroupOwnerId"]
-        del rule["SecurityGroupRuleId"]
         del rule["SecurityGroupRuleArn"]
+        del rule["SecurityGroupRuleId"]
+        del rule['FromPort']
+        del rule['ToPort']
+
 
         group.append(rule)
 
