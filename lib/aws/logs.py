@@ -1,4 +1,5 @@
 import aws
+import datetime
 
 
 _service_name = "logs"
@@ -65,3 +66,24 @@ class streams(base):
                 data[_id] = r2
 
         return data
+
+    def _mutate(self, data):
+        # Chain to any other mutators
+        super()._mutate(data)
+
+        timefields = [
+            "creationTime",
+            "firstEventTimestamp",
+            "lastEventTimestamp",
+            "lastIngestionTime",
+        ]
+
+        for _id, item in data.items():
+            for i in timefields:
+                if i in item:
+                    timestamp = item[i] / 1000
+                    dt = datetime.datetime.fromtimestamp(
+                        timestamp,
+                        tz=datetime.timezone.utc
+                    ).astimezone()
+                    item[i] = dt.isoformat(timespec="milliseconds")
