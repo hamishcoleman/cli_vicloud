@@ -182,8 +182,25 @@ class managed_prefix_lists(base, aws._data_two_deep):
 
 
 # describe-nat-gateways
-# describe-network-acls
-# describe-network-interface-permissions
+
+
+class network_acls(base, aws._data_two_deep, aws._mutate_sortarray):
+    datatype = datatype_prefix + "network_acls"
+    operator = "describe_network_acls"
+    dump = True
+    r1_key = "NetworkAcls"
+    r2_id = "NetworkAclId"
+    sortarray = {
+        "Entries": "RuleNumber",
+    }
+
+
+class network_interface_permissions(base, aws._data_two_deep):
+    datatype = datatype_prefix + "network_interface_permissions"
+    operator = "network_interface_permissions"
+    dump = True
+    r1_key = "NetworkInterfacePermissions"
+    r2_id = "NetworkInterfacePermissionId"
 
 
 class network_interfaces(base, aws._data_two_deep):
