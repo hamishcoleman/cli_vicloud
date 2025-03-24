@@ -320,6 +320,13 @@ class volumes(base, aws._data_two_deep):
     r2_id = "VolumeId"
 
 
+# class vpc_block_public_access_options(base):
+#     datatype = datatype_prefix + "vpc_block_public_access_options"
+#     operator = "describe_vpc_block_public_access_options"
+#     dump = True
+#     r1_key = "VpcBlockPublicAccessOptions"
+# Returns a single resource
+
 class vpc_classic_link(base, aws._data_two_deep):
     datatype = datatype_prefix + "vpc_classic_link"
     operator = "describe_vpc_classic_link"
@@ -334,6 +341,7 @@ class vpc_classic_link_dns_support(base, aws._data_two_deep):
     r1_key = "Vpcs"
     r2_id = "VpcId"
 
+# describe-vpc-endpoint-associations
 # describe-vpc-endpoint-connection-notifications
 # describe-vpc-endpoint-connections
 # describe-vpc-endpoint-service-configurations
@@ -347,7 +355,14 @@ class vpc_endpoint_services(base, aws._data_two_deep):
 
 
 # describe-vpc-endpoints
-# describe-vpc-peering-connections
+
+
+class vpc_peering_connections(base, aws._data_two_deep):
+    datatype = datatype_prefix + "vpc_peering_connections"
+    operator = "describe_vpc_peering_connections"
+    dump = True
+    r1_key = "VpcPeeringConnections"
+    r2_id = "VpcPeeringConnectionId"
 
 
 class vpcs(base, aws._data_two_deep):
