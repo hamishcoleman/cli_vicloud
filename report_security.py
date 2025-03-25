@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Summarise the security group rule yaml files in this dir"""
+"""Summarise a set of network security rule yaml files"""
 #
 # An initial attempt at writing a tool to mine the dumpped data.
 #
@@ -14,6 +14,19 @@ import yaml
 def argparser():
     args = argparse.ArgumentParser(
         description=__doc__,
+    )
+
+    args.add_argument(
+        "--profile",
+        action="append",
+        default=[],
+        help="Select which awscli profile filter for",
+    )
+    args.add_argument(
+        "--region",
+        action="append",
+        default=[],
+        help="Select which aws region to filter for",
     )
 
     args.add_argument(
@@ -79,10 +92,17 @@ def main():
     rules = {}
 
     os.chdir(args.dirname)
-
-    for filename in glob.glob("*.yaml"):
+    for filename in glob.glob("**/*.yaml", recursive=True):
         with open(filename, "r+") as f:
             raw = yaml.safe_load(f)
+            if args.profile and raw["metadata"]["profile"] not in args.profile:
+                continue
+            if args.region and raw["metadata"]["region"] not in args.region:
+                continue
+
+            if raw["datatype"] != "aws.ec2.security_group_rules":
+                continue
+
             _id = raw["metadata"]["resourceid"]
             item = raw["specifics"]
             rules[_id] = item
