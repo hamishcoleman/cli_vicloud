@@ -266,6 +266,25 @@ class security_group_rules(base, aws._data_two_deep):
     r2_id = "SecurityGroupRuleId"
 
 
+class security_groups(base, aws._data_two_deep):
+    datatype = datatype_prefix + "security_groups"
+    dump = True
+    operator = "describe_security_groups"
+    r1_key = "SecurityGroups"
+    r2_id = "GroupId"
+
+    def _mutate(self, data):
+        """Remove data that is duplicated in security_group_rules"""
+
+        # Chain to any other mutators
+        super()._mutate(data)
+
+        for _id, item in data.items():
+            del item["IpPermissionsEgress"]
+            del item["IpPermissions"]
+            del item["OwnerId"]
+
+
 class snapshots(base, aws._data_two_deep):
     datatype = datatype_prefix + "snapshots"
     operator = "describe_snapshots"
