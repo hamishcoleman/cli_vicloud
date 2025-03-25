@@ -87,9 +87,21 @@ def str_table_columns(rows):
     return columns
 
 
+db = {}
+db["sg"] = {}
+db["sgr"] = {}
+
+
+def data_add_sg(_id, item):
+    db["sg"][_id] = item
+
+
+def data_add_sgr(_id, item):
+    db["sgr"][_id] = item
+
+
 def main():
     args = argparser()
-    rules = {}
 
     os.chdir(args.dirname)
     for filename in glob.glob("**/*.yaml", recursive=True):
@@ -100,15 +112,17 @@ def main():
             if args.region and raw["metadata"]["region"] not in args.region:
                 continue
 
-            if raw["datatype"] != "aws.ec2.security_group_rules":
-                continue
-
             _id = raw["metadata"]["resourceid"]
             item = raw["specifics"]
-            rules[_id] = item
+
+            if raw["datatype"] == "aws.ec2.security_group_rules":
+                data_add_sgr(_id, item)
+            if raw["datatype"] == "aws.ec2.security_groups":
+                data_add_sg(_id, item)
+
 
     groups = {}
-    for rule in rules.values():
+    for rule in db["sgr"].values():
         group = groups.setdefault(rule["GroupId"], [])
 
         # Make the ports human readable
@@ -132,9 +146,11 @@ def main():
         group.append(rule)
 
     for _id in sorted(groups.keys()):
+        sg = db["sg"].get(_id, {})
         group = groups[_id]
+
         print()
-        print("GroupId:", _id)
+        print("GroupId:", _id, sg.get("GroupName",""))
 
         columns = sorted(str_table_columns(group))
         print(str_table(group, columns, orderby="CidrIpv4"))
