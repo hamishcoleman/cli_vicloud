@@ -4,9 +4,25 @@
 # An initial attempt at writing a tool to mine the dumpped data.
 #
 
+import argparse
 import collections
 import glob
+import os
 import yaml
+
+
+def argparser():
+    args = argparse.ArgumentParser(
+        description=__doc__,
+    )
+
+    args.add_argument(
+        "dirname",
+        help="Which directory to scan for SGR items",
+    )
+
+    r = args.parse_args()
+    return r
 
 
 def str_table(rows, columns, orderby=None):
@@ -59,7 +75,10 @@ def str_table_columns(rows):
 
 
 def main():
+    args = argparser()
     rules = {}
+
+    os.chdir(args.dirname)
 
     for filename in glob.glob("*.yaml"):
         with open(filename, "r+") as f:
