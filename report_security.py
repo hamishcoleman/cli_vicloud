@@ -133,32 +133,7 @@ def data_add_sgr(_id, item):
     db["sgr"][_id] = item
 
 
-def main():
-    args = argparser()
-
-    os.chdir(args.dirname)
-    for filename in glob.glob("**/*.yaml", recursive=True):
-        with open(filename, "r+") as f:
-            raw = yaml.safe_load(f)
-            if args.profile and raw["metadata"]["profile"] not in args.profile:
-                continue
-            if args.region and raw["metadata"]["region"] not in args.region:
-                continue
-
-            _id = raw["metadata"]["resourceid"]
-            item = raw["specifics"]
-
-            if raw["datatype"] == "aws.ec2.instances":
-                data_add_instance(_id, item)
-                continue
-            if raw["datatype"] == "aws.ec2.security_group_rules":
-                data_add_sgr(_id, item)
-                continue
-            if raw["datatype"] == "aws.ec2.security_groups":
-                data_add_sg(_id, item)
-                continue
-
-
+def dump_all_sg():
     groups = {}
     for rule in db["sgr"].values():
         group = groups.setdefault(rule["GroupId"], [])
@@ -207,6 +182,37 @@ def main():
 
         columns = sorted(str_table_columns(group))
         print(str_table(group, columns, orderby="CidrIpv4"))
+
+
+def load_data(args):
+    os.chdir(args.dirname)
+    for filename in glob.glob("**/*.yaml", recursive=True):
+        with open(filename, "r+") as f:
+            raw = yaml.safe_load(f)
+            if args.profile and raw["metadata"]["profile"] not in args.profile:
+                continue
+            if args.region and raw["metadata"]["region"] not in args.region:
+                continue
+
+            _id = raw["metadata"]["resourceid"]
+            item = raw["specifics"]
+
+            if raw["datatype"] == "aws.ec2.instances":
+                data_add_instance(_id, item)
+                continue
+            if raw["datatype"] == "aws.ec2.security_group_rules":
+                data_add_sgr(_id, item)
+                continue
+            if raw["datatype"] == "aws.ec2.security_groups":
+                data_add_sg(_id, item)
+                continue
+
+
+def main():
+    args = argparser()
+
+    load_data(args)
+    dump_all_sg()
 
 
 if __name__ == "__main__":
