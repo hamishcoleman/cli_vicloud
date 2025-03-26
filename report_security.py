@@ -88,8 +88,41 @@ def str_table_columns(rows):
 
 
 db = {}
+db["instance"] = {}
 db["sg"] = {}
+db["sg_instances"] = {}
 db["sgr"] = {}
+
+
+def instance_name(_id):
+    if _id not in db["instance"]:
+        return f"? ({_id})"
+
+    name = "?"
+    for tag in db["instance"][_id].get("Tags", []):
+        if tag["Key"] != "Name":
+            continue
+        name = tag["Value"].lower()
+
+    return f"{name} ({_id})"
+
+
+def group_name(_id):
+    if _id not in db["sg"]:
+        return f"? ({_id})"
+
+    name = "?"
+    if "GroupName" in db["sg"]:
+        name = db["sg"]["GroupName"].lower()
+
+    return f"{name} ({_id})"
+
+
+def data_add_instance(_id, item):
+    db["instance"][_id] = item
+    for group in item.get("SecurityGroups",[]):
+        groupid = group["GroupId"]
+        db["sg_instances"].setdefault(groupid, set()).add(_id)
 
 
 def data_add_sg(_id, item):
@@ -115,10 +148,15 @@ def main():
             _id = raw["metadata"]["resourceid"]
             item = raw["specifics"]
 
+            if raw["datatype"] == "aws.ec2.instances":
+                data_add_instance(_id, item)
+                continue
             if raw["datatype"] == "aws.ec2.security_group_rules":
                 data_add_sgr(_id, item)
+                continue
             if raw["datatype"] == "aws.ec2.security_groups":
                 data_add_sg(_id, item)
+                continue
 
 
     groups = {}
@@ -145,12 +183,27 @@ def main():
 
         group.append(rule)
 
-    for _id in sorted(groups.keys()):
+    group_names = {}
+    for _id in groups.keys():
+        name = group_name(_id)
+        group_names[name] = _id
+
+    for name, _id in sorted(group_names.items()):
         sg = db["sg"].get(_id, {})
         group = groups[_id]
 
         print()
-        print("GroupId:", _id, sg.get("GroupName",""))
+        print("Group:", name)
+        if "Description" in sg:
+            print("Description:", sg["Description"])
+
+        instances = set()
+        if _id in db["sg_instances"]:
+            for instance in db["sg_instances"][_id]:
+                instances.add(instance_name(instance))
+
+        for instance in sorted(instances):
+            print("Instance", instance)
 
         columns = sorted(str_table_columns(group))
         print(str_table(group, columns, orderby="CidrIpv4"))
