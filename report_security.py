@@ -6,9 +6,20 @@
 
 import argparse
 import collections
+import ctypes
 import glob
 import os
 import yaml
+
+
+# FFS, python, what happened to "batteries included"?
+# https://bugs.python.org/issue24809
+#
+def getprotobynumber(proto):
+    libc = ctypes.CDLL("libc.so.6")
+    libc.getprotobynumber.restype = ctypes.POINTER(ctypes.c_char_p)
+    res = libc.getprotobynumber(proto)
+    return res.contents.value.decode("utf8")
 
 
 def argparser():
@@ -88,10 +99,24 @@ def str_table_columns(rows):
 
 
 db = {}
+db["acl"] = {}
 db["instance"] = {}
 db["sg"] = {}
 db["sg_instances"] = {}
 db["sgr"] = {}
+
+
+def acl_name(_id):
+    if _id not in db["acl"]:
+        return f"? ({_id})"
+
+    name = "?"
+    for tag in db["acl"][_id].get("Tags", []):
+        if tag["Key"] != "Name":
+            continue
+        name = tag["Value"].lower()
+
+    return f"{name} ({_id})"
 
 
 def instance_name(_id):
@@ -118,6 +143,10 @@ def group_name(_id):
     return f"{name} ({_id})"
 
 
+def data_add_acl(_id, item):
+    db["acl"][_id] = item
+
+
 def data_add_instance(_id, item):
     db["instance"][_id] = item
     for group in item.get("SecurityGroups",[]):
@@ -131,6 +160,35 @@ def data_add_sg(_id, item):
 
 def data_add_sgr(_id, item):
     db["sgr"][_id] = item
+
+
+def dump_all_acl():
+    acls = {}
+    for _id, acl in db["acl"].items():
+        name = acl_name(_id)
+        acls[name] = acl
+
+        for entry in acl["Entries"]:
+            if "PortRange" in entry:
+                _from = entry["PortRange"]["From"]
+                _to = entry["PortRange"]["To"]
+                if _from == _to:
+                    entry["PortRange"] = _from
+                else:
+                    entry["PortRange"] = f"{_from}-{_to}"
+            proto = int(entry["Protocol"])
+            if proto >= 0:
+                entry["Protocol"] = getprotobynumber(proto)
+
+    for name, acl in sorted(acls.items()):
+        vpc = acl.get("VpcId", "")
+        if vpc:
+            vpc = f"(VpcId: {vpc})"
+        print()
+        print("Acl:", name, vpc)
+
+        columns = sorted(str_table_columns(acl["Entries"]))
+        print(str_table(acl["Entries"], columns, orderby="RuleNumber"))
 
 
 def dump_all_sg():
@@ -200,6 +258,9 @@ def load_data(args):
             if raw["datatype"] == "aws.ec2.instances":
                 data_add_instance(_id, item)
                 continue
+            if raw["datatype"] == "aws.ec2.network_acls":
+                data_add_acl(_id, item)
+                continue
             if raw["datatype"] == "aws.ec2.security_group_rules":
                 data_add_sgr(_id, item)
                 continue
@@ -212,6 +273,8 @@ def main():
     args = argparser()
 
     load_data(args)
+
+    dump_all_acl()
     dump_all_sg()
 
 
