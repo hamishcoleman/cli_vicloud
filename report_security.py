@@ -168,6 +168,7 @@ def dump_all_acl():
         name = acl_name(_id)
         acls[name] = acl
 
+        rules = []
         for entry in acl["Entries"]:
             if "PortRange" in entry:
                 _from = entry["PortRange"]["From"]
@@ -176,9 +177,47 @@ def dump_all_acl():
                     entry["PortRange"] = _from
                 else:
                     entry["PortRange"] = f"{_from}-{_to}"
+            else:
+                entry["PortRange"] = "*"
+
             proto = int(entry["Protocol"])
-            if proto >= 0:
+            if proto == -1:
+                entry["Protocol"] = "*"
+            else:
                 entry["Protocol"] = getprotobynumber(proto)
+
+            rule = {}
+            rule["RuleNumber"] = entry["RuleNumber"]
+            rule["Protocol"] = entry["Protocol"]
+            rule["RuleAction"] = entry["RuleAction"]
+
+            if entry["Egress"]:
+                rule["SrcAddr"] = "*"
+                rule["DstAddr"] = entry["CidrBlock"]
+                rule["SrcPort"] = entry["PortRange"]
+                rule["DstPort"] = "*"
+                rule["_order"] = entry["RuleNumber"] + 0.1
+            else:
+                # "Inbound rules"
+                rule["SrcAddr"] = entry["CidrBlock"]
+                rule["DstAddr"] = "*"
+                rule["SrcPort"] = "*"
+                rule["DstPort"] = entry["PortRange"]
+                rule["_order"] = entry["RuleNumber"] + 0.0
+
+            rules.append(rule)
+
+        acl["_rules"] = rules
+
+    columns = [
+        "RuleNumber",
+        "SrcAddr",
+        "DstAddr",
+        "Protocol",
+        "SrcPort",
+        "DstPort",
+        "RuleAction",
+    ]
 
     for name, acl in sorted(acls.items()):
         vpc = acl.get("VpcId", "")
@@ -187,8 +226,7 @@ def dump_all_acl():
         print()
         print("Acl:", name, vpc)
 
-        columns = sorted(str_table_columns(acl["Entries"]))
-        print(str_table(acl["Entries"], columns, orderby="RuleNumber"))
+        print(str_table(acl["_rules"], columns, orderby="_order"))
 
 
 def dump_all_sg():
