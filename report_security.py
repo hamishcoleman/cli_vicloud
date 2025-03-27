@@ -119,6 +119,19 @@ def acl_name(_id):
     return f"{name} ({_id})"
 
 
+def tags_to_sane(data):
+    tags = {}
+    for tag in data:
+        if tag["Key"] in tags:
+            raise ValueError("Duplicate tag name")
+        tags[tag["Key"]] = tag["Value"]
+
+    stags = {}
+    for k, v in sorted(tags.items()):
+        stags[k] = v
+    return stags
+
+
 def instance_name(_id):
     if _id not in db["instance"]:
         return f"? ({_id})"
@@ -283,7 +296,7 @@ def dump_all_sg():
                 rule["Description"] = entry["Description"]
 
             if entry["Tags"]:
-                rule["Tags"] = entry["Tags"]
+                rule["Tags"] = tags_to_sane(entry["Tags"])
 
             if "CidrIpv4" in entry:
                 addr = entry["CidrIpv4"]
