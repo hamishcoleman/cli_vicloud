@@ -243,15 +243,6 @@ def dump_all_sg():
             ports = f"{_from}-{_to}"
         rule["PortRange"] = ports
 
-        # Clean up data we dont need to see at the moment
-        del rule["GroupId"]
-        del rule["GroupOwnerId"]
-        del rule["SecurityGroupRuleArn"]
-        del rule["SecurityGroupRuleId"]
-        del rule['FromPort']
-        del rule['ToPort']
-
-
         group.append(rule)
 
     group_names = {}
@@ -276,8 +267,59 @@ def dump_all_sg():
         for instance in sorted(instances):
             print("Instance", instance)
 
-        columns = sorted(str_table_columns(group))
-        print(str_table(group, columns, orderby="CidrIpv4"))
+        rules = []
+        for entry in group:
+            rule = {}
+            rule["Protocol"] = entry["IpProtocol"]
+            rule["RuleAction"] = "ALLOW"
+
+            if rule["Protocol"] == "-1":
+                rule["Protocol"] = "*"
+
+            if entry["PortRange"] == -1:
+                entry["PortRange"] = "*"
+
+            if "Description" in entry:
+                rule["Description"] = entry["Description"]
+
+            if entry["Tags"]:
+                rule["Tags"] = entry["Tags"]
+
+            if "CidrIpv4" in entry:
+                addr = entry["CidrIpv4"]
+
+            if "ReferencedGroupInfo" in entry:
+                addr = entry["ReferencedGroupInfo"]["GroupId"]
+
+            if entry["IsEgress"]:
+                rule["SrcAddr"] = "$this"
+                rule["DstAddr"] = addr
+                rule["SrcPort"] = entry["PortRange"]
+                rule["DstPort"] = "*"
+            else:
+                # "Inbound rules"
+                rule["SrcAddr"] = addr
+                rule["DstAddr"] = "$this"
+                rule["SrcPort"] = "*"
+                rule["DstPort"] = entry["PortRange"]
+
+            rule["_order"] = f'{rule["SrcAddr"]}/{rule["SrcPort"]}-{rule["DstAddr"]}/{rule["DstPort"]}'
+            rules.append(rule)
+
+
+        columns = [
+            "RuleNumber",
+            "SrcAddr",
+            "DstAddr",
+            "Protocol",
+            "SrcPort",
+            "DstPort",
+            "RuleAction",
+            "Description",
+            "Tags",
+        ]
+
+        print(str_table(rules, columns, orderby="_order"))
 
 
 def load_data(args):
