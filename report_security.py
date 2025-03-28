@@ -9,6 +9,7 @@ import collections
 import ctypes
 import glob
 import os
+import socket
 import yaml
 
 
@@ -20,6 +21,33 @@ def getprotobynumber(proto):
     libc.getprotobynumber.restype = ctypes.POINTER(ctypes.c_char_p)
     res = libc.getprotobynumber(proto)
     return res.contents.value.decode("utf8")
+
+
+def port2sortable(s):
+    """Convert a possible port string to a sortable string"""
+    try:
+        port = int(s)
+    except ValueError:
+        port = 0
+    return f"{port:06}"
+
+
+def ipaddr2sortable(s):
+    """Convert a possible ipv4addr+subnet to a sortable string"""
+    parts = s.split("/")
+
+    # TODO: ipv6
+
+    try:
+        addr = socket.inet_aton(parts[0]).hex()
+    except (OSError, NameError):
+        addr = "00000000"
+
+    if len(parts) > 1:
+        addr += "/"
+        addr += port2sortable(parts[1])
+
+    return addr
 
 
 def argparser():
@@ -316,7 +344,13 @@ def dump_all_sg():
                 rule["SrcPort"] = "*"
                 rule["DstPort"] = entry["PortRange"]
 
-            rule["_order"] = f'{rule["SrcAddr"]}/{rule["SrcPort"]}-{rule["DstAddr"]}/{rule["DstPort"]}'
+            orderby = []
+            orderby.append(port2sortable(rule["SrcPort"]))
+            orderby.append(port2sortable(rule["DstPort"]))
+            orderby.append(ipaddr2sortable(rule["SrcAddr"]))
+            orderby.append(ipaddr2sortable(rule["DstAddr"]))
+            rule["_order"] = ".".join(orderby)
+
             rules.append(rule)
 
 
