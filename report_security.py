@@ -178,8 +178,8 @@ def group_name(_id):
         return f"? ({_id})"
 
     name = "?"
-    if "GroupName" in db["sg"]:
-        name = db["sg"]["GroupName"].lower()
+    if "GroupName" in db["sg"][_id]:
+        name = db["sg"][_id]["GroupName"].lower()
 
     return f"{name} ({_id})"
 
