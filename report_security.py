@@ -132,6 +132,7 @@ db["instance"] = {}
 db["sg"] = {}
 db["sg_instances"] = {}
 db["sgr"] = {}
+db["vpc"] = {}
 
 
 def acl_name(_id):
@@ -184,6 +185,19 @@ def group_name(_id):
     return f"{name} ({_id})"
 
 
+def vpc_name(_id):
+    if _id not in db["vpc"]:
+        return f"? ({_id})"
+
+    name = "?"
+    for tag in db["vpc"][_id].get("Tags", []):
+        if tag["Key"] != "Name":
+            continue
+        name = tag["Value"].lower()
+
+    return f"{name} ({_id})"
+
+
 def data_add_acl(_id, item):
     db["acl"][_id] = item
 
@@ -201,6 +215,10 @@ def data_add_sg(_id, item):
 
 def data_add_sgr(_id, item):
     db["sgr"][_id] = item
+
+
+def data_add_vpc(_id, item):
+    db["vpc"][_id] = item
 
 
 def dump_all_acl():
@@ -263,7 +281,7 @@ def dump_all_acl():
     for name, acl in sorted(acls.items()):
         vpc = acl.get("VpcId", "")
         if vpc:
-            vpc = f"(VpcId: {vpc})"
+            vpc = f"(Vpc: {vpc_name(vpc)})"
         print()
         print("Acl:", name, vpc)
 
@@ -393,6 +411,9 @@ def load_data(args):
                 continue
             if raw["datatype"] == "aws.ec2.security_groups":
                 data_add_sg(_id, item)
+                continue
+            if raw["datatype"] == "aws.ec2.vpcs":
+                data_add_vpc(_id, item)
                 continue
 
 
