@@ -40,7 +40,14 @@ import aws.ssm          # noqa
 import definitionset    # noqa
 
 
-def output_data_csv(data, file):
+def output_data_csv(args, handler, sessions, file):
+    data = handler.fetch(args, sessions)
+    if data is None:
+        print("No data")
+        return
+    if args.verbose > 1:
+        print(data)
+
     fields = sorted(data.csv_fields())
     writer = csv.DictWriter(file, fieldnames=fields)
     writer.writeheader()
@@ -48,7 +55,14 @@ def output_data_csv(data, file):
         writer.writerow(row)
 
 
-def output_data_json(data, file):
+def output_data_json(args, handler, sessions, file):
+    data = handler.fetch(args, sessions)
+    if data is None:
+        print("No data")
+        return
+    if args.verbose > 1:
+        print(data)
+
     output = []
     for row in data.csv_rows():
         output.append(row)
@@ -60,7 +74,14 @@ def output_data_json(data, file):
     )
 
 
-def output_data_vd(data, mode):
+def output_data_vd(args, handler, sessions, mode):
+    data = handler.fetch(args, sessions)
+    if data is None:
+        print("No data")
+        return
+    if args.verbose > 1:
+        print(data)
+
     child = subprocess.Popen(
         ["vd", "-f", mode, "-"],
         stdin=subprocess.PIPE,
@@ -77,10 +98,17 @@ def output_data_vd(data, mode):
     child.wait()
 
 
-def output_data_yaml(data, file):
+def output_data_yaml(args, handler, sessions, file):
     # TODO:
     # - use an accessor for the DefinitionSet list
     # - use an accessor for the Definition data
+
+    data = handler.fetch(args, sessions)
+    if data is None:
+        print("No data")
+        return
+    if args.verbose > 1:
+        print(data)
 
     for item in data.canonical_data():
         yamlstr = yaml.safe_dump(
@@ -93,8 +121,15 @@ def output_data_yaml(data, file):
     print("...")
 
 
-def output_files_yaml(data, verbose):
+def output_files_yaml(args, handler, sessions, verbose):
     """Create a directory hierachy with one file per resource"""
+
+    data = handler.fetch(args, sessions)
+    if data is None:
+        print("No data")
+        return
+    if args.verbose > 1:
+        print(data)
 
     # track which dirs we have seen
     seen_paths = set()
@@ -135,30 +170,30 @@ def output_files_yaml(data, verbose):
             print(yamlstr, file=f)
 
 
-def process_data(args, data):
+def process_data(args, handler, sessions):
     # TODO:
     # if show table ..
     # if edit ..
     # output file name
 
     if args.mode == "csv":
-        output_data_csv(data, sys.stdout)
+        output_data_csv(args, handler, sessions, sys.stdout)
         return
 
     if args.mode == "files":
-        output_files_yaml(data, args.verbose)
+        output_files_yaml(args, handler, sessions, args.verbose)
         return
 
     if args.mode == "json":
-        output_data_json(data, sys.stdout)
+        output_data_json(args, handler, sessions, sys.stdout)
         return
 
     if args.mode == "vd":
-        output_data_vd(data, args.mode_vd)
+        output_data_vd(args, handler, sessions, args.mode_vd)
         return
 
     if args.mode == "yaml":
-        output_data_yaml(data, sys.stdout)
+        output_data_yaml(args, handler, sessions, sys.stdout)
         return
 
 
@@ -365,15 +400,7 @@ def main():
 
     sessions = aws.setup_sessions(args.verbose, args.profile, args.region)
 
-    data = handler.fetch(args, sessions)
-    if data is None:
-        print("No data")
-        return
-
-    if args.verbose > 1:
-        print(data)
-
-    process_data(args, data)
+    process_data(args, handler, sessions)
 
 
 if __name__ == "__main__":
