@@ -35,6 +35,7 @@ import aws.eks  # noqa
 import aws.elb  # noqa
 import aws.iam  # noqa
 import aws.logs         # noqa
+import aws.rds          # noqa
 import aws.route53      # noqa
 import aws.ssm          # noqa
 import definitionset    # noqa
@@ -377,6 +378,7 @@ def main():
     argparser_populate_subc("elb", aws.elb)
     argparser_populate_subc("iam", aws.iam)
     argparser_populate_subc("logs", aws.logs)
+    argparser_populate_subc("rds", aws.rds)
     argparser_populate_subc("route53", aws.route53)
     argparser_populate_subc("ssm", aws.ssm)
     args = argparser()
