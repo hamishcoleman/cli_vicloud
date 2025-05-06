@@ -4,11 +4,8 @@
 #
 
 import argparse
-import collections
-import ctypes
 import glob
 import os
-import socket
 import yaml
 
 
@@ -156,8 +153,6 @@ def dump_graphviz():
             print(f'  subgraph "cluster_{subnet_name}" {{')
             print(f'   label="{subnet_name}\\n{subnet["CidrBlock"]}"')
 
-            addrs_prv = []
-
             for instanceid in db["index_subnet_instance"][subnetid]:
                 instance = db["instance"][instanceid]
                 instance_name = str_instance_name(instanceid)
@@ -178,13 +173,16 @@ def dump_graphviz():
                     nodelines.append("")
                 nodelines.append(instance_name)
 
-                print(f'   "{instance_name}" [label="{{{"|".join(nodelines)}}}"]')
+                print(
+                    f'   "{instance_name}" [label="{{{"|".join(nodelines)}}}"]'
+                )
 
             print("  }")
 
         print(" }")
 
     print("}")
+
 
 def main():
     args = argparser()

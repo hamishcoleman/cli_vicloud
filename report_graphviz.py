@@ -2,7 +2,6 @@
 """Draw a connection diagram for dumped data"""
 #
 
-import collections
 import glob
 import re
 
@@ -19,7 +18,7 @@ def read_ids(f):
             break
 
         line = line.strip()
-        
+
         if line.startswith("resourceid: "):
             this = line.split()[1]
             continue
@@ -28,7 +27,6 @@ def read_ids(f):
 
         if not match:
             continue
-
 
         if match[1] == "Description:":
             continue
@@ -46,8 +44,6 @@ def read_ids(f):
 
 
 def main():
-    db = {}
-
     print("digraph G {")
     print(" node [ shape = rectangle ]")
     print(" rankdir = LR")
@@ -55,7 +51,7 @@ def main():
     for filename in glob.glob("**/*.yaml", recursive=True):
         with open(filename, "r+") as f:
             read_ids(f)
-    
+
     print("}")
 
 

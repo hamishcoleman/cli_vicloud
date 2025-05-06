@@ -5,7 +5,6 @@
 
 import argparse
 import collections
-import ctypes
 import glob
 import os
 import socket
@@ -205,7 +204,6 @@ def dump_all_ipaddrs():
         this["_order"] = ipaddr2sortable(this["IPv4"])
         rows.append(this)
 
-
     columns = [
         "IPv4",
         "Description",
@@ -213,7 +211,7 @@ def dump_all_ipaddrs():
         "VpcId",
         "Tags",
     ]
-    
+
     print(str_table(rows, columns, orderby="_order"))
 
 

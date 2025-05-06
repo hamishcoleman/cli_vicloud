@@ -204,7 +204,7 @@ def data_add_acl(_id, item):
 
 def data_add_instance(_id, item):
     db["instance"][_id] = item
-    for group in item.get("SecurityGroups",[]):
+    for group in item.get("SecurityGroups", []):
         groupid = group["GroupId"]
         db["sg_instances"].setdefault(groupid, set()).add(_id)
 
@@ -370,7 +370,6 @@ def dump_all_sg():
             rule["_order"] = ".".join(orderby)
 
             rules.append(rule)
-
 
         columns = [
             "RuleNumber",

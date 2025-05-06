@@ -242,4 +242,3 @@ class list_nodegroups(_cluster_foreach):
 class list_pod_identity_associations(_cluster_foreach):
     operator = "list_pod_identity_associations"
     r1_key = "associations"
-

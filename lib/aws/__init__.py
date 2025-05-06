@@ -240,6 +240,7 @@ class _mutate_sortarray(base):
             for keyname, orderby in self.sortarray.items():
                 item[keyname] = do_sort(item[keyname], orderby)
 
+
 class _mutate_sortTagsarray(base):
     """Apply stabilise the order of the Tags array"""
 

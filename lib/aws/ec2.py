@@ -370,6 +370,7 @@ class vpc_classic_link(base, aws._data_two_deep):
     r1_key = "Vpcs"
     r2_id = "VpcId"
 
+
 class vpc_classic_link_dns_support(base, aws._data_two_deep):
     datatype = datatype_prefix + "vpc_classic_link_dns_support"
     operator = "describe_vpc_classic_link_dns_support"
