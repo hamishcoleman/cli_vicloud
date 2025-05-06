@@ -75,22 +75,15 @@ def output_data_json(args, handler, sessions, file):
 
 
 def output_data_vd(args, handler, sessions, mode):
-    data = handler.fetch(args, sessions)
-    if data is None:
-        print("No data")
-        return
-    if args.verbose > 1:
-        print(data)
-
     child = subprocess.Popen(
         ["vd", "-f", mode, "-"],
         stdin=subprocess.PIPE,
         text=True
     )
     if mode == "csv":
-        output_data_csv(data, child.stdin)
+        output_data_csv(args, handler, sessions, child.stdin)
     elif mode == "json":
-        output_data_json(data, child.stdin)
+        output_data_json(args, handler, sessions, child.stdin)
     else:
         raise ValueError(f"unknown vd mode {mode}")
 
