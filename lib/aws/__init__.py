@@ -152,12 +152,7 @@ class base:
             # stash our datasource to simplify the transition period
             client._datasource = datasource
 
-            try:
-                specifics = self._fetch_one_client(client, args=args)
-            except:
-                # TODO: bubble this condition up, mark that profile as
-                # possibly skippable
-                specifics = None
+            specifics = self._fetch_one_client(client, args=args)
 
             if not specifics:
                 continue
