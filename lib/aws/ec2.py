@@ -20,7 +20,7 @@ class account_attributes(base):
         operator = "describe_account_attributes"
         r1_key = "AccountAttributes"
 
-        self.log_operator(datasource, self.operator)
+        self.log_operator(datasource, operator)
 
         for r1 in self._paged_op(client, operator):
             for r2 in r1[r1_key]:
@@ -55,7 +55,7 @@ class dhcp_options(base):
         r1_key = "DhcpOptions"
         r2_id = "DhcpOptionsId"
 
-        self.log_operator(datasource, self.operator)
+        self.log_operator(datasource, operator)
 
         for r1 in self._paged_op(client, operator):
             for r2 in r1[r1_key]:
@@ -117,7 +117,7 @@ class instances(base, aws._mutate_sortTagsarray):
         r2_key = "Instances"
         r3_id = "InstanceId"
 
-        self.log_operator(datasource, self.operator)
+        self.log_operator(datasource, operator)
 
         for r1 in self._paged_op(client, operator):
             for r2 in r1[r1_key]:
@@ -197,7 +197,7 @@ class network_acls(base, aws._data_two_deep, aws._mutate_sortarray):
 
 class network_interface_permissions(base, aws._data_two_deep):
     datatype = datatype_prefix + "network_interface_permissions"
-    operator = "network_interface_permissions"
+    operator = "describe_network_interface_permissions"
     dump = True
     r1_key = "NetworkInterfacePermissions"
     r2_id = "NetworkInterfacePermissionId"
@@ -312,7 +312,7 @@ class tags(base):
         r1_key = "Tags"
         r2_id = "ResourceId"
 
-        self.log_operator(datasource, self.operator)
+        self.log_operator(datasource, operator)
 
         for r1 in self._paged_op(client, operator):
             for r2 in r1[r1_key]:

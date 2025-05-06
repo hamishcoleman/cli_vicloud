@@ -29,7 +29,7 @@ class listeners(base):
         r1_key = "Listeners"
         r2_id = "ListenerArn"
 
-        self.log_operator(datasource, self.operator)
+        self.log_operator(datasource, operator)
 
         data = {}
         for arn in arns:
@@ -68,7 +68,7 @@ class rules(base):
         r1_key = "Rules"
         r2_id = "RuleArn"
 
-        self.log_operator(datasource, self.operator)
+        self.log_operator(datasource, operator)
 
         data = {}
         for arn in arns:
