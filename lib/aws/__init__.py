@@ -101,6 +101,7 @@ def setup_sessions(verbose, profiles, regions):
 
         for region in this_regions:
             this = {
+                "enable": True,
                 "profile": profile,
                 "region": region,
                 "session": session,
@@ -117,21 +118,26 @@ class base:
     def __init__(self):
         self.verbose = 0
 
-    def log_operator(self, datasource, operation):
+    def log(self, datasource, message):
         profile = datasource.profile
         region = datasource.region
-        service_name = self.service_name
-
         if self.verbose:
             print(
-                f"{profile}:{region}:{service_name} fetch {operation}",
+                f"{profile}:{region}:{self.service_name} {message}",
                 file=sys.stderr
             )
+
+    def log_operator(self, datasource, operation):
+        self.log(datasource, f"fetch {operation}")
 
     def fetch(self, args, sessions):
         db = definitionset.DefinitionSet()
         profiles_done = {}
         for session in sessions:
+            if not session["enable"]:
+                # Skip sessions that have become error disabled
+                continue
+
             profile_name = session["session"].profile_name
             region_name = session["region"]
 
