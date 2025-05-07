@@ -82,14 +82,18 @@ def setup_sessions(verbose, profiles, regions):
         if not regions:
             # Get the list of regions enabled for our profile
             client = session.client("ec2", region_name="ap-southeast-2")
+
+            # TODO: use a common logger (see base.log())
             if verbose:
                 print(f"{profile}: describe_regions", file=sys.stderr)
 
             try:
                 reply = client.describe_regions()
                 this_regions = [r['RegionName'] for r in reply['Regions']]
-            except botocore.exceptions.ClientError:
-                print(f"Error fetching regions for {profile}", file=sys.stderr)
+            except botocore.exceptions.ClientError as e:
+                code = e.response["Error"]["Code"]
+                # TODO: use a common logger (see base.log())
+                print(f"{profile}: ERROR: {code}, skipping", file=sys.stderr)
                 this_regions = []
 
         else:
