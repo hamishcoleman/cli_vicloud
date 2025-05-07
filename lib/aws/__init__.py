@@ -162,7 +162,26 @@ class base:
             # stash our datasource to simplify the transition period
             client._datasource = datasource
 
-            specifics = self._fetch_one_client(client, args=args)
+            try:
+                specifics = self._fetch_one_client(client, args=args)
+            except botocore.exceptions.ClientError as e:
+                skip_codes = [
+                    "AuthFailure",
+                    "InvalidClientTokenId",
+                ]
+                code = e.response["Error"]["Code"]
+
+                if code in skip_codes:
+                    self.log(datasource, f"ERROR: {code}, skipping")
+                    specifics = None
+
+                    # Skip this region for the rest of this run
+                    session["enable"] = False
+                else:
+                    raise
+            except botocore.exceptions.TokenRetrievalError:
+                # Attempt to provide a better error-message experience
+                raise ValueError("TokenRetrievalError: probably not logged in")
 
             if not specifics:
                 continue
