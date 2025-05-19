@@ -168,6 +168,7 @@ class base:
                 skip_codes = [
                     "AuthFailure",
                     "InvalidClientTokenId",
+                    "UnsupportedOperation",
                 ]
                 code = e.response["Error"]["Code"]
 
