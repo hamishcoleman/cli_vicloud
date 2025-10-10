@@ -42,8 +42,66 @@ class list_access_keys(base):
 
 
 # list-account-aliases
-# list-attached-group-policies GroupName
-# list-attached-role-policies RoleName
+
+
+class list_attached_group_policies(base):
+    datatype = datatype_prefix + "attached_group_policies"
+    dump = True
+    operator = "list_attached_group_policies"
+    single_region = True
+    r1_key = "AttachedPolicies"
+
+    def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
+        # first, get the list
+        handler = list_groups()
+        handler.verbose = self.verbose
+        groups = handler._fetch_one_client(client)
+
+        data = {}
+        for _id, group in groups.items():
+            self.log_operator(datasource, self.operator)
+
+            groupname = group["GroupName"]
+            kwargs = {
+                "GroupName": groupname,
+            }
+            for r1 in self._paged_op(client, self.operator, **kwargs):
+                del r1["ResponseMetadata"]
+                del r1["IsTruncated"]
+                data[_id] = r1
+
+        return data
+
+
+class list_attached_role_policies(base):
+    datatype = datatype_prefix + "attached_role_policies"
+    dump = True
+    operator = "list_attached_role_policies"
+    single_region = True
+    r1_key = "AttachedPolicies"
+
+    def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
+        # first, get the list
+        handler = list_roles()
+        handler.verbose = self.verbose
+        roles = handler._fetch_one_client(client)
+
+        data = {}
+        for _id, role in roles.items():
+            self.log_operator(datasource, self.operator)
+
+            rolename = role["RoleName"]
+            kwargs = {
+                "RoleName": rolename,
+            }
+            for r1 in self._paged_op(client, self.operator, **kwargs):
+                del r1["ResponseMetadata"]
+                del r1["IsTruncated"]
+                data[_id] = r1
+
+        return data
 
 
 class list_attached_user_policies(base):
