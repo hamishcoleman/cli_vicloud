@@ -10,6 +10,18 @@ class base(aws.base):
     service_name = _service_name
 
 
+class get_account_authorization_details(base, aws._data_two_deep):
+    datatype = datatype_prefix + "account_authorization_details"
+    # Note: dumping a single_region object may cause non idempotent regions
+    dump = True
+    operator = "get_account_authorization_details"
+    single_region = True
+    r1_key = "UserDetailList"
+    r2_id = "UserName"
+
+
+# get-credential-report / generate-credential-report
+
 class list_access_keys(base):
     datatype = datatype_prefix + "access_keys"
     dump = True
@@ -135,6 +147,9 @@ class list_attached_user_policies(base):
         return data
 
 
+# list-entities-for-policy
+
+
 class list_groups(base, aws._data_two_deep):
     datatype = datatype_prefix + "groups"
     dump = True
@@ -223,6 +238,40 @@ class list_policies(base, aws._data_two_deep):
     r2_id = "PolicyName"
 
 
+class list_role_tags(base):
+    datatype = datatype_prefix + "role_tags"
+    dump = True
+    operator = "list_role_tags"
+    single_region = True
+    r1_key = "Tags"
+
+    def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
+        # first, get the list of roles
+        handler = list_roles()
+        handler.verbose = self.verbose
+        roles = handler._fetch_one_client(client)
+
+        data = {}
+        for _id, role in roles.items():
+            self.log_operator(datasource, self.operator)
+
+            rolename = role["RoleName"]
+            kwargs = {
+                "RoleName": rolename,
+            }
+            for r1 in self._paged_op(client, self.operator, **kwargs):
+                for r2 in r1[self.r1_key]:
+                    k = r2["Key"]
+                    v = r2["Value"]
+
+                    if rolename not in data:
+                        data[rolename] = {}
+
+                    data[rolename][k] = v
+        return data
+
+
 class list_roles(base, aws._data_two_deep):
     datatype = datatype_prefix + "roles"
     operator = "list_roles"
@@ -267,6 +316,40 @@ class list_user_policies(base):
                 del r1["IsTruncated"]
                 data[_id] = r1
 
+        return data
+
+
+class list_user_tags(base):
+    datatype = datatype_prefix + "user_tags"
+    dump = True
+    operator = "list_user_tags"
+    single_region = True
+    r1_key = "Tags"
+
+    def _fetch_one_client(self, client, args=None):
+        datasource = client._datasource
+        # first, get the list of users
+        handler = list_users()
+        handler.verbose = self.verbose
+        users = handler._fetch_one_client(client)
+
+        data = {}
+        for _id, user in users.items():
+            self.log_operator(datasource, self.operator)
+
+            username = user["UserName"]
+            kwargs = {
+                "UserName": username,
+            }
+            for r1 in self._paged_op(client, self.operator, **kwargs):
+                for r2 in r1[self.r1_key]:
+                    k = r2["Key"]
+                    v = r2["Value"]
+
+                    if username not in data:
+                        data[username] = {}
+
+                    data[username][k] = v
         return data
 
 
