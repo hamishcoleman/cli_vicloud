@@ -220,7 +220,7 @@ class target_group_attributes(base):
 
 class target_health(base):
     datatype = datatype_prefix + "target_health"
-    dump = False
+    dump = True
 
     def _fetch_one_client(self, client, args=None):
         datasource = client._datasource
@@ -240,7 +240,15 @@ class target_health(base):
 
         data = {}
         for arn in arns:
+            data[arn] = {}
             for r1 in self._paged_op(client, operator, TargetGroupArn=arn):
-                data[arn] = r1[r1_key]
+                for health in r1[r1_key]:
+                    _id = f'{health["Target"]["Id"]}/{health["Target"]["Port"]}'
+
+                    # This key provides the current status, not the config
+                    # TODO: optionally expose this
+                    del health["TargetHealth"]
+
+                    data[arn][_id] = health
 
         return data
