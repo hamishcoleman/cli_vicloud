@@ -240,7 +240,10 @@ class target_health(base):
 
         data = {}
         for arn in arns:
-            data[arn] = {}
+            data[arn] = {
+                "_arn": arn,
+                "TargetHealthDescriptions": {},
+            }
             for r1 in self._paged_op(client, operator, TargetGroupArn=arn):
                 for health in r1[r1_key]:
                     _id = f'{health["Target"]["Id"]}/{health["Target"]["Port"]}'
@@ -249,6 +252,6 @@ class target_health(base):
                     # TODO: optionally expose this
                     del health["TargetHealth"]
 
-                    data[arn][_id] = health
+                    data[arn]["TargetHealthDescriptions"][_id] = health
 
         return data
