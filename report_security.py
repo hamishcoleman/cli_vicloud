@@ -128,9 +128,11 @@ def str_table_columns(rows):
 
 db = {}
 db["acl"] = {}
+db["elb"] = {}
 db["instance"] = {}
 db["sg"] = {}
 db["sg_instances"] = {}
+db["sg_elb"] = {}
 db["sgr"] = {}
 db["vpc"] = {}
 
@@ -219,6 +221,12 @@ def data_add_sgr(_id, item):
 
 def data_add_vpc(_id, item):
     db["vpc"][_id] = item
+
+
+def data_add_elb(_id, item):
+    db["elb"][_id] = item
+    for groupid in item.get("SecurityGroups", []):
+        db["sg_elb"].setdefault(groupid, set()).add(_id)
 
 
 def dump_all_acl():
@@ -323,6 +331,13 @@ def dump_all_sg():
             for instance in db["sg_instances"][_id]:
                 instances.add(instance_name(instance))
 
+        elbs = set()
+        if _id in db["sg_elb"]:
+            for elb in db["sg_elb"][_id]:
+                elbs.add(elb)
+
+        for elb in sorted(elbs):
+            print("ELB", elb)
         for instance in sorted(instances):
             print("Instance", instance)
 
@@ -413,6 +428,9 @@ def load_data(args):
                 continue
             if raw["datatype"] == "aws.ec2.vpcs":
                 data_add_vpc(_id, item)
+                continue
+            if raw["datatype"] == "aws.elbv2.load_balancers":
+                data_add_elb(_id, item)
                 continue
 
 
