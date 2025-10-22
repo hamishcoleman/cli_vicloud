@@ -13,43 +13,6 @@ import socket
 import yaml
 
 
-# FFS, python, what happened to "batteries included"?
-# https://bugs.python.org/issue24809
-#
-def getprotobynumber(proto):
-    libc = ctypes.CDLL("libc.so.6")
-    libc.getprotobynumber.restype = ctypes.POINTER(ctypes.c_char_p)
-    res = libc.getprotobynumber(proto)
-    return res.contents.value.decode("utf8")
-
-
-def port2sortable(s):
-    """Convert a possible port string to a sortable string"""
-    try:
-        port = int(s)
-    except ValueError:
-        port = 0
-    return f"{port:06}"
-
-
-def ipaddr2sortable(s):
-    """Convert a possible ipv4addr+subnet to a sortable string"""
-    parts = s.split("/")
-
-    # TODO: ipv6
-
-    try:
-        addr = socket.inet_aton(parts[0]).hex()
-    except (OSError, NameError):
-        addr = "00000000"
-
-    if len(parts) > 1:
-        addr += "/"
-        addr += port2sortable(parts[1])
-
-    return addr
-
-
 def argparser():
     args = argparse.ArgumentParser(
         description=__doc__,
@@ -75,55 +38,6 @@ def argparser():
 
     r = args.parse_args()
     return r
-
-
-def str_table(rows, columns, orderby=None):
-    """Given an array of dicts, do a simple table print"""
-    result = list()
-    widths = collections.defaultdict(lambda: 0)
-
-    if len(rows) == 0:
-        # No data to show, be sure not to truncate the column headings
-        for col in columns:
-            widths[col] = len(col)
-    else:
-        for row in rows:
-            for col in columns:
-                if col in row:
-                    widths[col] = max(widths[col], len(str(row[col])))
-
-    for col in columns:
-        if widths[col] == 0:
-            widths[col] = 1
-        result += "{:{}.{}} ".format(col, widths[col], widths[col])
-    result += "\n"
-
-    if orderby is not None:
-        rows = sorted(rows, key=lambda row: row.get(orderby, ""))
-
-    for row in rows:
-        for col in columns:
-            if col in row:
-                data = row[col]
-            else:
-                data = ''
-            if isinstance(data, (list, dict)):
-                data = str(data)
-
-            result += "{:{}} ".format(data, widths[col])
-        result += "\n"
-
-    return ''.join(result)
-
-
-def str_table_columns(rows):
-    """Given an array of dicts, return a set of all column names"""
-
-    columns = set()
-    for row in rows:
-        columns.update(row)
-
-    return columns
 
 
 class ItemBase:
