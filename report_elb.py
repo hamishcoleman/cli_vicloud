@@ -32,6 +32,13 @@ def argparser():
     )
 
     args.add_argument(
+        "--show_all_hosts",
+        action="store_true",
+        default=False,
+        help="Always show hosts, even if they have no ELB connections",
+    )
+
+    args.add_argument(
         "dirname",
         help="Which directory to scan for SGR items",
     )
@@ -263,14 +270,21 @@ class Instance(ItemBase):
     def name(self):
         return self._tags_to_sane()["Name"]
 
-    def graphviz_node(self):
+    def graphviz_node(self, show_all_hosts=False):
         r = []
         r += [f'subgraph "cluster_{self.key()}" {{']
         r += [f'  label="{self.name()}"']
         r += [""]
-        for item_key in sorted(self.target_health.keys()):
+        health = sorted(self.target_health.keys())
+        for item_key in health:
             item = self.target_health[item_key]
             r += item.graphviz_nodes(self.data["InstanceId"])
+
+        # A graphviz subgraph cluster with no nodes inside it is invisible
+        # Show it if needed
+        if not len(health) and show_all_hosts:
+            r += [f'"{self.key()}"']
+
         r += ["}"]
 
         return "\n".join(r)
@@ -280,7 +294,7 @@ class Instance(ItemBase):
         self.target_health[arn] = item
 
 
-def dump_all_elb():
+def dump_all_elb(show_all_hosts):
     print("digraph G {")
     print("  rankdir=LR")
     print("  node[shape=rectangle]")
@@ -293,7 +307,7 @@ def dump_all_elb():
     print()
     for item_arn in sorted(Instance.db.keys()):
         item = Instance.get(item_arn)
-        print(item.graphviz_node())
+        print(item.graphviz_node(show_all_hosts=show_all_hosts))
 
     print()
     for listener_arn in sorted(Listener.db.keys()):
@@ -361,7 +375,7 @@ def main():
     load_data(args)
     bind_data()
 
-    dump_all_elb()
+    dump_all_elb(args.show_all_hosts)
 
 
 if __name__ == "__main__":
