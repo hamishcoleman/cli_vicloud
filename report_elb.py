@@ -51,7 +51,7 @@ class ItemBase:
     @classmethod
     def get(cls, arn):
         return cls.db[arn]
-    
+
     def __init__(self, data):
         self.data = data
         arn = self.arn()
@@ -320,6 +320,7 @@ def dump_all_elb(show_all_hosts):
         print(item.graphviz_edges())
 
     print("}")
+
 
 def bind_data():
     """Several data types refer to each other, find them and bind them"""
