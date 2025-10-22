@@ -172,6 +172,7 @@ class rules(base):
             for r1 in self._paged_op(client, operator, ListenerArn=arn):
                 for r2 in r1[r1_key]:
                     _id = r2[r2_id]
+                    r2["_listener_arn"] = arn
                     data[_id] = r2
 
         return data
