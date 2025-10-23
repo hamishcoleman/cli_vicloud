@@ -5,11 +5,8 @@
 #
 
 import argparse
-import collections
-import ctypes
 import glob
 import os
-import socket
 import yaml
 
 
