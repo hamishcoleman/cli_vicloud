@@ -226,7 +226,7 @@ class Rules(ItemBase):
                 redir = action["RedirectConfig"]
                 dest = f'{redir["Protocol"]}://{redir["Host"]}:{redir["Port"]}'
             elif action["Type"] == "fixed-response":
-                dest = "{self.key()}_fixed-response"
+                dest = f"{self.key()}_fixed-response"
 
             # implicitly else raise NameError: dest is not defined
 
