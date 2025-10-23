@@ -156,7 +156,7 @@ class Listener(ItemBase):
 
         rules = self.rules.values()
         for rule in rules:
-            r += [rule.graphvis_edges()]
+            r += [rule.graphviz_edges()]
 
         if not len(rules):
             # If for some reason we dont have the rules data, we can at least
@@ -209,7 +209,7 @@ class Rules(ItemBase):
             # TODO: print warning
             pass
 
-    def graphvis_edges(self):
+    def graphviz_edges(self):
         r = []
         listener = Listener.get(self.listener_arn())
         src = listener.key()
