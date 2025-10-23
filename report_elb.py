@@ -346,7 +346,11 @@ class Instance(ItemBase):
     def graphviz_node(self, show_all_hosts=False):
         r = []
         r += [f'subgraph "cluster_{self.key()}" {{']
-        r += [f'  label="{self.name()}"']
+        label=self.name()
+        if self.data["State"]["Name"] == "stopped":
+            label += "\nSTOPPED"
+            r += ["  color=red"]
+        r += [f'  label="{label}"']
         r += [""]
         health = sorted(self.target_health.keys())
         for item_key in health:
