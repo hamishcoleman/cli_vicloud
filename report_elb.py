@@ -38,7 +38,8 @@ def argparser():
     args.add_argument(
         "--cloudflare_yaml",
         type=argparse.FileType('r'),
-        default=None,
+        action="append",
+        default=[],
         help="File to load DNS data from",
     )
 
@@ -530,11 +531,12 @@ def bind_data():
         item.ref_bind()
 
 
-def load_cloudflare_yaml(fh):
-    data = yaml.safe_load(fh)
+def load_cloudflare_yaml(files):
+    for fh in files:
+        data = yaml.safe_load(fh)
 
-    for item in data["result"]:
-        DNS(item)
+        for item in data["result"]:
+            DNS(item)
 
 
 def load_data(args):
