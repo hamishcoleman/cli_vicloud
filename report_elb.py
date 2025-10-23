@@ -116,6 +116,14 @@ class Listener(ItemBase):
     db = {}
     _arn_key = "ListenerArn"
 
+    def __init__(self, data):
+        super().__init__(data)
+        self.rules = {}
+
+    def add_rule(self, item):
+        arn = item.arn()
+        self.rules[arn] = item
+
     def elb_arn(self):
         return self.data["LoadBalancerArn"]
 
@@ -139,25 +147,93 @@ class Listener(ItemBase):
         protocol = self.data["Protocol"]
         return f"{protocol}:{port}"
 
+    def key_fragment(self):
+        """The key without the type, used by child Rules"""
+        return f"{self._elb_name()}_{self.name()}"
+
     def key(self):
-        return f"{type(self).__name__}_{self._elb_name()}_{self.name()}"
+        return f"{type(self).__name__}_{self.key_fragment()}"
 
     def graphviz_edges(self):
         r = []
-        key = self.key()
-        for action in self.data["DefaultActions"]:
-            if action["Type"] == "redirect":
-                redir = action["RedirectConfig"]
-                dest = f'{redir["Protocol"]}://{redir["Host"]}:{redir["Port"]}'
-            elif action["Type"] == "forward":
+
+        rules = self.rules.values()
+        for rule in rules:
+            r += [rule.graphvis_edges()]
+
+        if not len(rules):
+            # If for some reason we dont have the rules data, we can at least
+            # use the default action information inside the listener object
+            #
+            # TODO: this duplicates the interpretation in the Rules renderer
+
+            key = self.key()
+
+            for action in self.data["DefaultActions"]:
+                if action["Type"] == "redirect":
+                    redir = action["RedirectConfig"]
+                    proto = redir["Protocol"]
+                    host = redir["Host"]
+                    port = redir["Port"]
+                    dest = f'{proto}://{host}:{port}'
+                elif action["Type"] == "forward":
+                    target_arn = action["TargetGroupArn"]
+                    try:
+                        target_group = Target_Group.get(target_arn)
+                        dest = target_group.key()
+                    except KeyError:
+                        dest = target_arn
+
+                r += [f'"{key}" -> "{dest}"']
+
+        return "\n".join(r)
+
+
+class Rules(ItemBase):
+    db = {}
+    _arn_key = "RuleArn"
+
+    def key(self):
+        listener = Listener.get(self.listener_arn())
+        return f"{type(self).__name__}_{listener.key_fragment()}"
+
+    def listener_arn(self):
+        try:
+            return self.data["_listener_arn"]
+        except KeyError:
+            return "FIXME_old_dump_data"
+
+    def listener_bind(self):
+        listener_arn = self.listener_arn()
+        try:
+            listener = Listener.get(listener_arn)
+            listener.add_rule(self)
+        except KeyError:
+            # TODO: print warning
+            pass
+
+    def graphvis_edges(self):
+        r = []
+        listener = Listener.get(self.listener_arn())
+        src = listener.key()
+
+        for action in self.data["Actions"]:
+            if action["Type"] == "forward":
                 target_arn = action["TargetGroupArn"]
                 try:
                     target_group = Target_Group.get(target_arn)
                     dest = target_group.key()
                 except KeyError:
                     dest = target_arn
+            elif action["Type"] == "redirect":
+                redir = action["RedirectConfig"]
+                dest = f'{redir["Protocol"]}://{redir["Host"]}:{redir["Port"]}'
+            elif action["Type"] == "fixed-response":
+                dest = "{self.key()}_fixed-response"
 
-            r += [f'"{key}" -> "{dest}"']
+            # implicitly else raise NameError: dest is not defined
+
+            r += [f'"{src}" -> "{dest}"']
 
         return "\n".join(r)
 
@@ -335,6 +411,9 @@ def bind_data():
         item.group_bind()
         item.instance_bind()
 
+    for item in Rules.db.values():
+        item.listener_bind()
+
 
 def load_data(args):
     os.chdir(args.dirname)
@@ -363,6 +442,10 @@ def load_data(args):
 
             if datatype == "aws.elbv2.target_health":
                 Target_Health(item)
+                continue
+
+            if datatype == "aws.elbv2.rules":
+                Rules(item)
                 continue
 
             if datatype == "aws.ec2.instances":
